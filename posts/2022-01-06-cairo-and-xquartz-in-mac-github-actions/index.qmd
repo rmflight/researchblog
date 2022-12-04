@@ -1,0 +1,26 @@
+---
+title: "Cairo and XQuartz in Mac GitHub Actions"
+subtitle: |
+  Including cairo and xquartz in MacOS github actions
+date: 2022-01-06
+categories: [random-code-snippets, cairo, xquartz, development, github, R]
+bibliography: refs.bib
+---
+
+I've been using GitHub actions to check and test some of my R packages on multiple architectures, which is nice because I work primarily on Linux.
+
+One recent package uses the `{Cairo}` package to generate images that are subsequently used for visualization [@cairopackage].
+
+Interestingly, `{Cairo}` will install fine on MacOS, and then fail as soon as you do `library(Cairo)`, complaining about not being able to load the {cairo.so} file.
+
+Thankfully, it seems that the GitHub actions MacOS VMs have homebrew [@homebrew] installed, which means we can use the xquartz brew [@xquartzbrew] to install it, and have {cairo.so} available.
+
+To add this to your GitHub actions yml, you should add these lines, and double check the brew syntax with the official docs.
+
+```
+    steps:
+      - name: Install X11 dependencies on MacOS
+        if: runner.os == 'macOS'
+        run: |
+          brew install --cask xquartz
+```

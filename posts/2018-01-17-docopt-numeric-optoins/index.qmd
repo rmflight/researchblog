@@ -1,0 +1,68 @@
+---
+title: "docopt & Numeric Options"
+date: '2018-01-17'
+categories: [R, development, programming, docopt]
+subtitle: |
+  Every input is a string in docopt. Every Input!!
+---
+
+## TL;DR
+
+If you use the `docopt` package to create command line `R` executables that take
+options, there is something to know about numeric command line options: they should
+have `as.double` before using them in your script.
+
+## Setup
+
+Lets set up a new `docopt` string, that includes both string and
+numeric arguments.
+
+```{r setup_docopt}
+"
+Usage:
+  test_numeric.R [--string=<string_value>] [--numeric=<numeric_value>]
+  test_numeric.R (-h | --help)
+  test_numeric.R
+
+Description: Testing how values are passed using docopt.
+
+Options:
+  --string=<string_value>  A string value [default: Hi!]
+  --numeric=<numeric_value>   A numeric value [default: 10]
+
+" -> doc
+```
+
+```{r show_options, eval=FALSE}
+library(methods)
+library(docopt)
+
+script_options <- docopt(doc)
+
+script_options
+```
+
+```
+## List of 8
+##  $ --string : chr "Hi!"
+##  $ --numeric: chr "10"
+##  $ -h       : logi FALSE
+##  $ --help   : logi FALSE
+##  $ string   : chr "Hi!"
+##  $ numeric  : chr "10"
+##  $ h        : logi FALSE
+##  $ help     : logi FALSE
+## NULL
+```
+
+It is very easy to see here, that the `numeric` argument is indeed a string, and
+if you want to use it as numeric, it should first be converted using `as.double`,
+`as.integer`, or even `as.numeric`.
+
+## Can't You Easily Tell It's Character?
+
+I just bring this up because I recently used `docopt` to provide interfaces to
+three executables scripts, and I spent a lot of time `printing` the `doc` strings,
+and I somehow never noticed that the numeric values were actually character and
+needed to be converted to a numeric first. Hopefully this will save someone else
+some time in that regard.

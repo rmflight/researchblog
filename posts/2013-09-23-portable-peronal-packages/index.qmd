@@ -1,0 +1,15 @@
+---
+title: "Portable, Personal Packages"
+date: 2013-09-23
+categories: [R, packages, development]
+subtitle: |
+  My take on creating simple little packages for your own commonly used functions.
+---
+
+[ProgrammingR](http://www.programmingr.com/) had an interesting [post](http://www.programmingr.com/content/creating-personal-portable-r-code-library-github/) recently about keeping a set of `R` functions that are used often as a [`gist`](https://gist.github.com/discover) on [Github](https://github.com), and `source`ing that file at the beginning of `R` analysis scripts. There is nothing inherently wrong with this, but it does end up cluttering the user workspace, and there is no real documentation on the functions, and no good way to implement [unit testing](http://cran.r-project.org/web/packages/testthat/index.html). 
+
+However, the best way to have **sets** of `R` functions is as a [`package`](http://adv-r.had.co.nz/Package-basics.html), that can then be installed and loaded by anyone. Normally packages are compiled and hosted on [`CRAN`](http://cran.r-project.org/), [`R-forge`](http://r-forge.r-project.org/), or [`Bioconductor`](http://bioconductor.org). However, Github is becoming a common place to host packages, and thanks to Hadley Wickham's [`install_github`](http://www.rdocumentation.org/packages/devtools/functions/install_github) function in the [`devtools` package](http://www.rdocumentation.org/packages/devtools), it is rather easy to install a package directly from Github. This does require that you have [r-tools](http://cran.r-project.org/bin/windows/Rtools/) installed if you are using Windows (I know that can take a bit of work, but it's not impossible), and do some extra work to create a [proper package](http://adv-r.had.co.nz/Package-basics.html), but the overhead is probably worth it if you are using these functions all the time. 
+
+Once you have the package created and hosted on Github, it is simple to install it once, and load it when needed. If there is a particular version of the package that is required, it is even possible to tell `install_github` to install a particular version based on the *commit*, or a *tag*.
+
+Some examples of this type of package can be found on Github: [1](https://github.com/kbroman/broman) [2](https://github.com/childsish/lhc-R) [3](https://github.com/juba/r-perso)

@@ -1,0 +1,96 @@
+---
+title: "Travis-CI to GitHub Pages"
+date: 2014-11-05
+categories: [R, reproducibility, travis-ci, github, publishing]
+subtitle: |
+  How I automatically have some stuff get pushed to GitHub pages from a Travis CI job.
+---
+
+I don't remember how I got on this, but I believe I had a recent twitter exchange with some persons (or saw it fly by) about pushing `R` package vignettes to the web after building and checking on *travis-ci*. [Hadley Wickham](https://twitter.com/hadleywickham) pointed to using such a scheme to push the web version of his book after each update and the `S3` deploy hooks on *travis-ci*. Deploying your html content to `S3` is great, but given the availability of the `gh-pages` branch on GitHub, I thought it would be neat to work out how to deploy the html output from an `R` package vignette to the `gh-pages` branch on GitHub. This is useful because more and more packages are being hosted only on GitHub and building and testing use the *travis-ci* service, and it takes work to remember to `knit` and push stuff separately to the `gh-pages` branch. In addition, although it is possible to `deploy` one's html output to other services from within *travis-ci*, there is not an **easy** pushbutton solution to deploying to GitHub pages. After some searching and looking, this is what I have come up with for my own package.
+
+All subsequent steps assume that:
+
+  * You are hosting your package development on GitHub
+  * You have html content in the *gh-pages* branch of your package repo (see more about *gh-pages* [here](https://help.github.com/articles/creating-project-pages-manually/) and [here](https://help.github.com/categories/github-pages-basics/))
+  * You already have your package doing building and testing using *travis-ci*. See the [`r-travis`](https://github.com/craigcitro/r-travis) project for more information on how to set this up.
+
+## OAUTH
+
+To start, you will need to generate an `OAUTH` token on GitHub that will be used to allow you to push back to your GitHub repo. This will be some really long alphanumeric string. You can generate one by going to `settings` -> `applications` -> `personal access tokens` -> `generate new token`. Make sure to copy this into a file that is **not** under version control. 
+
+You will also need to install the `travis` ruby framework.
+
+```
+gem install travis
+```
+
+After installing, navigate to your `git` repo for the project you want to enable automatic pushing of content for, and then login to *travis-ci* and secure the GitHub token.
+
+```
+travis login
+
+travis encrypt GH_TOKEN="yourgithubtoken"
+```
+
+This will generate output that should be copied to your `.travis.yml` file. Essentially we have created an environment variable `GH_TOKEN` with your actual GitHub token, that is encrypted on the *travis-ci* servers. So this way you don't expose your actual GitHub token to anyone who looks at your `.travis.yml` file.
+
+## Deploy Script
+
+We also need a bash script that will actually push the content for us. As part of the `R` process on *travis-ci*, we get a `tar.gz` file of the package with the compiled vignette. So we just need to `untar` that file, copy the html file, and create the `git` repo and push. The code below is what I have done for my own package, [`categoryCompare`](https://github.com/rmflight/categoryCompare). I saved this code in the file `.push_gh_pages.sh`.
+
+```
+#!/bin/bash
+
+rm -rf out || exit 0;
+mkdir out;
+
+GH_REPO="@github.com/rmflight/categoryCompare.git"
+
+FULL_REPO="https://$GH_TOKEN$GH_REPO"
+
+for files in '*.tar.gz'; do
+        tar xfz $files
+done
+
+cd out
+git init
+git config user.name "rmflight-travis"
+git config user.email "travis"
+cp ../categoryCompare/inst/doc/categoryCompare_vignette.html index.html
+
+git add .
+git commit -m "deployed to github pages"
+git push --force --quiet $FULL_REPO master:gh-pages
+```
+
+Note that we remove the directory where we want to create our `git` repo, create it, setup the `remote` repo with the token string, and then we `untar` and `unzip` the previously built package, and copy over the file that we want to be the index.html page on the `gh-pages` branch. Finally we add it, commit it, and do a force push.
+
+This script is actually part of the package repo, but does not get included in the built `tar.gz` file (add it to `.Rbuildignore`). This makes it easy to keep it in sync with any changes to the overall package itself. 
+
+Note that this is completely overriding the current contents of the `gh-pages` branch. If you wanted to do something nicer (*i.e.* preserving commits or working with an index page pointing to multiple vignettes), you could `pull` just the `gh-pages` branch first, and then make modifications.
+
+## Modifying .travis.yml
+
+In addition, we need to add three lines to the `.travis.yml` file. 
+
+```
+# under env: global:
+  - secure: "yoursecurestring"
+
+# under before_install:
+  - chmod 755 ./.push_gh_pages.sh
+
+# under after_success:
+  - ./.push_gh_pages.sh
+```
+
+  * Adding the `GH_TOKEN` to the global environment variables
+  * Making the deploy script executable
+  * Adding the running of the deploy script `after_success`, so only when build and check and tests run successfully
+
+
+And it seems to work quite nicely. As an example, my [`categoryCompare`](https://github.com/rmflight/categoryCompare) package now has it's vignette on the [`gh-pages` branch](http://rmflight.github.io/categoryCompare/), and this will get updated every time I push a commit. 
+
+## Update
+
+As [Carson](https://twitter.com/cpsievert) pointed out below, there was an error in the second code block. `travis secure` should be `travis encrypt`, as you are **encrypting** the credentials. **secure** is for decrypting something that was already encrypted. Thanks for catching it!

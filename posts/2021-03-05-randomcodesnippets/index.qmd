@@ -1,0 +1,23 @@
+---
+title: "Random Code Snippets"
+subtitle: |
+  Introducing random-code-snippets.
+date: 03-05-2021
+categories: [random-code-snippets]
+bibliography: refs.bib
+---
+
+I've been organizing a bunch of random code that I find myself re-using time and time again in a Github Repo [@rmflightResources].
+But the repo is not very searchable unless you are the one who maintains it, and some of the categories are not well defined.
+
+This blog already contains a few posts in this vein, where I've previously described, including these for example:
+
+  * Creating custom Affymetrix CDF definitions [@flight2012creating]
+  * Custom commit hooks to increment R package version numbers [@flight2014package]
+  * Writing a custom blog deployment script [@flight2017custom]
+
+So, in that vein, I've decided to organize those posts here, and move more of the code from the github repo from there to here, where it should be easier to find and search, as they can be organized under the one page, but have multiple tags to make it easier to find what you (or really myself) are looking for.
+
+These will all share the category [random-code-snippets](#category:random-code-snippets), and be listed at [Random Code Snippets](/random_code_snippets.html).
+I hope others find these as useful as I do.
+

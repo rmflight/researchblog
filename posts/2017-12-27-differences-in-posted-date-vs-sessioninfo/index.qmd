@@ -1,0 +1,9 @@
+---
+title: "Differences in Posted Date vs sessionInfo()"
+date: '2017-12-27'
+categories: [development, blogdown]
+subtitle: |
+  If you see differences in the sessionInfo output and the date the post was published, this is why.
+---
+
+If you are a newcomer to my weblog, you may notice that some posts that are `R` tutorials generally include the output of `Sys.time()` at the end. If you look closeley at that time and the **Posted on** date, you may notice that some posts show disagreement between them. This is because I decided to move *all* of my old blog posts from *blogspot* to here, and keep the original posted dates.

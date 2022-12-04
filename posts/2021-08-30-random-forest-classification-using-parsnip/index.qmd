@@ -1,0 +1,92 @@
+---
+title: "Random Forest Classification Using Parsnip"
+subtitle: |
+  How to make sure you get a classification fit and not a probability fit from a random forest model using the tidymodels framework.
+date: 08-30-2021
+categories: [parsnip, tidymodels, machine-learning, random-forest, random-code-snippets]
+bibliography: refs.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+
+I've been working on a "machine learning" project, and in the process I've been learning to use the tidymodels framework [@tidymodelsSite], which helps save you from leaking information from testing to training data, as well as creating workflows in a consistent way across methods.
+
+However, I got tripped up recently by one issue.
+When I've previously used Random Forests [@rfWiki], I've found that for **classification** problems, the out-of-bag (OOB) error reported is a good proxy for the area-under-the-curve (AUC), or estimate of how good any other machine learning technique will do (see [@flight2015random] for an example using actual random data).
+Therefore, I like to put my data through a Random Forest algorithm and check the OOB error, and then maybe reach for a tuned boosted tree to squeeze every last bit of performance out.
+
+tidymodels default is to use a `probability` tree, even for classification problems.
+This isn't normally a problem for most people, because you will have a train and test set, and estimate performance on the test set using AUC.
+However, it is a problem if you just want to see the OOB error from the random forest, because it is reported differently for probability vs classification.
+
+Lets run an example using the tidymodels *cell* data set.
+
+```{r run_ranger, message=FALSE, warning=FALSE}
+library(tidymodels)
+library(modeldata)
+library(skimr)
+data(cells, package = "modeldata")
+library(ranger)
+tidymodels_prefer()
+
+cells$case = NULL
+set.seed(1234)
+ranger(class ~ ., data = cells, min.node.size = 10, classification = TRUE)
+```
+
+Here we can see that we get an OOB error of 17%, which isn't too shabby.
+Now, let's setup a workflow to do the same thing via tidymodels parsnip.
+
+```{r run_tidymodels}
+rf_spec = rand_forest() %>%
+  set_engine("ranger") %>%
+  set_mode("classification")
+
+rf_recipe = recipe(class ~ ., data = cells) %>%
+  step_dummy(class, -class)
+
+set.seed(1234)
+workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_spec) %>%
+  fit(data = cells)
+```
+
+Here we see the OOB error is 12% (0.119), which is not significantly different than the 17% above, but still different.
+Also, the "Type" shows "Probability estimation" instead of "Classification estimation".
+
+If we run ranger again with a "probability" instead of "classification", do we match up with the result above?
+
+```{r run_ranger_prob}
+set.seed(1234)
+ranger(class ~ ., data = cells, min.node.size = 10, probability = TRUE)
+```
+
+That is much closer to the tidymodels result!
+Great!
+Except, it's a misestimation of the true OOB error for classification.
+How do we get what we want while using the tidymodels framework?
+
+I couldn't find the answer, and the above **looked** like a bug, so I filed one on the parsnip github [@parsnipIssue].
+Julia Silge helpfully provided the solution to my problem.
+
+```{r tidymodels_classification}
+rf_spec_class = rand_forest() %>%
+  set_engine("ranger", probability = FALSE) %>%
+  set_mode("classification")
+
+set.seed(1234)
+workflow() %>%
+  add_recipe(rf_recipe) %>%
+  add_model(rf_spec_class) %>%
+  fit(data = cells)
+```
+
+Aha!
+Now we are much closer to the original value of 17%, and the "Type" is "Classification".
+
+I know in this case, the differences in OOB error are honestly not that much different, but in my recent project, they differed by 20%, where I had a 45% using classification, and 25% using probability.
+Therefore, I was being fooled by the tidymodels framework investigation, and then wondering why my final AUC on a tuned model was only hitting just > 55%.
+
+So remember, this isn't how I would run the model for final classification and estimation of AUC on a test set, but if you want the OOB errors for a quick "feel" of your data, it's very useful.

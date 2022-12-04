@@ -1,0 +1,49 @@
+---
+title: "Licensing R Packages that Include Others Code"
+date: '2018-02-14'
+categories: [R, packages, open-science, licensing]
+subtitle: |
+  I wanted to include others code in my package, and couldn't find any good resources.
+---
+
+## TL;DR
+
+If you include others code in your own R package, list them as contributors with comments about what they contributed, and add a license statement in the file that includes their code.
+
+## Motivation
+
+I recently created the [`knitrProgressBar`](https://CRAN.R-project.org/package=knitrProgressBar) package. It is a really simple package, that takes the `dplyr` progress bars and makes it possible for them to write progress to a supplied file connection. The `dplyr` package itself is licensed under MIT, so I felt fine taking the code directly from `dplyr` itself. In addition, I didn't want my package to depend on `dplyr`, so I wanted that code self-contained in my own package, and I wanted to be able to modify underlying mechanics that might have been more complicated if I had just made a new class of progress bar that inherited from `dplyr`'s. 
+
+I also wanted to be able to release my code on CRAN, not just on GitHub. I knew to accomplish that I would have to have all the license stuff correct. However, I had not seen any guide on how to **license** a package and give proper attribution in the `Authors@R` field.
+
+Note that I did ask this question on [StackOverflow](https://stackoverflow.com/questions/48525023/properly-license-r-package-that-includes-other-mit-code) and [ROpenSci](https://discuss.ropensci.org/t/licensing-a-new-package-that-uses-code-from-another-source/1046) forums as well.
+
+## Information from CRAN
+
+I should note here, that the CRAN author guidelines do provide a **small** hint in this regard in the [Writing R Extensions](https://cran.r-project.org/doc/manuals/r-release/R-exts.html) guide:
+
+> Note that all significant contributors must be included: if you wrote an R wrapper for the work of others included in the src directory, you are not the sole (and maybe not even the main) author.
+
+However, there is not any guidance provided on **how** these should ideally be listed.
+
+## Full Answer
+
+I am the main author and maintainer of the new package, that is easy. The original code is MIT licensed, authored by several persons, and has copyright held by RStudio. 
+
+My solution then was to:
+
+* [add the MIT license](https://github.com/rmflight/knitrProgressBar/blob/master/R/progress.R#L6) from `dplyr` to the file that has the progress bar code
+* add [all the authors](https://github.com/rmflight/knitrProgressBar/blob/master/DESCRIPTION#L5) of `dplyr` as **contributors** to my package, with a comment as to **why** they are listed
+* add RStudio as a **copyright holder** to my package, with a comment that this only applies to the one file
+
+So the `Authors@R` line in my `DESCRIPTION` ended up being:
+
+```
+Authors@R: c(person(given = c("Robert", "M"), family = "Flight", email = "rflight79@gmail.com", role = c("aut", "cre")),
+            person("Hadley", "Wickham", role = "ctb", comment = "Author of included dplyr fragments"),
+            person("Romain", "Francois", role = "ctb", comment = "Author of included dplyr fragments"),
+            person("Lionel", "Henry", role = "ctb", comment = "Author of included dplyr fragments"),
+            person("Kirill", "Müller", role = "ctb", comment = "Author of included dplyr fragments"),
+            person("RStudio", role = "cph", comment = "Copyright holder of included dplyr fragments"))
+```
+

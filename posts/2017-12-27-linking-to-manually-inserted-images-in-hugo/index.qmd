@@ -1,0 +1,33 @@
+---
+title: "Linking to Manually Inserted Images in Blogdown / Hugo"
+date: '2017-12-27'
+categories: [hugo, R, blogdown]
+subtitle: |
+  This is my method to include something manually in a blogdown post.
+---
+
+## Manual Linking?
+
+Using `blogdown` for generating websites and blog-posts from `Rmarkdown` files 
+with lots of inserted code and figures
+seems pretty awesome, but sometimes you want to include a figure manually, either
+because you want to generate something manually and convert it (say
+for going from SVG of lots of points to hi-res PNG), or because it is a figure
+from something else ([like this figure from wikipedia](https://upload.wikimedia.org/wikipedia/commons/8/8c/Standard_deviation_diagram.svg)).
+
+## Where to??
+
+To do this, you want the text of your `<img>` tag to your image to be: 
+
+```
+<img src = "/img/image_file.png"></img>
+```
+
+And then put the image itself in the directory `/static/img/image_file.png`
+
+<img src = "/img/Standard_deviation_diagram.svg"></img>
+
+*By M. W. Toews, [CC BY 2.5](http://creativecommons.org/licenses/by/2.5), via Wikimedia Commons, [source](https://upload.wikimedia.org/wikipedia/commons/8/8c/Standard_deviation_diagram.svg)*
+
+This information is also mentioned in [section 2.7 of the Blogdown book](https://bookdown.org/yihui/blogdown/static-files.html). Obviously I need to 
+do more reading.

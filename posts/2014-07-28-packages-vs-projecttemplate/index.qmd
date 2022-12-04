@@ -1,0 +1,55 @@
+---
+title: "Packages vs ProjectTemplate"
+date: 2014-07-28
+categories: [R, packages, analysis, development]
+subtitle: |
+  Why I think packages are better than the projectTemplate package.
+---
+
+## TL;DR
+
+Imposing a different structure than `R` packages for distributing `R` code is a bad idea, especially now that `R` package tools have gotten to the point where managing a package has become much easier.
+
+## ProjectTemplate ??
+
+My last two posts ([1](/posts/2014-07-28-analyses-as-packages), [2](/posts/2014-07-28-creating-an-analysis-as-a-package-and-vignette)) provided an argument and an example of why one should use `R` packages to contain analyses. They were partly motivated by trends I had seen in other areas, including the appearance of the package [`ProjectTemplate`](http://projecttemplate.net/index.html). I was reminded about it thanks to [Hadley Wickham](https://twitter.com/hadleywickham/statuses/493775065033371648):
+
+> would be interesting to see comparison to ProjectTemplate
+
+[John Myles White](http://www.johnmyleswhite.com/) has an `R` package, [ProjectTemplate](http://projecttemplate.net/) for handling analyses. In contrast to the package philosophy that I espoused previously, `ProjectTemplate` has a large, logical folder layout (you can read all about each folder and why it [exists here](http://projecttemplate.net/architecture.html)). There is a folder for raw data, a folder for `R` scripts, a folder for reports, etc.
+
+Hadley probably wanted me to do the same analysis using `ProjectTemplate`, but I don't have the time for that. Instead I'm going to write below about the features `ProjectTemplate` has, and why I think packages are a better general solution. So, just to be clear, I have not done any analyses using `ProjectTemplate`, I have only the website descriptions to go on.
+
+Now, I think I understand the philosophy of `ProjectTemplate`, in that when writing a manuscript or report in an external editor such as LaTex, Word, LibreOffice (or even something else), you want a directory of outputs (graphs, tables, etc) resulting from applying a series of transformations on some data (`R` scripts applied to `.txt` or `.csv`, etc). In addition, a `package` is for storing **general** functions that will work across multiple `projects`.
+
+## Differences
+
+### Keeping Directories Straight
+
+I can understand this POV, and in the past would have largely agreed. However, with the development of `devtools` and other tools that make managing `R` packages rather easy, I think it makes more sense to use the `R` package mechanism instead of a custom format. In the `ProjectTemplate` you may write functions or code in the `/lib`, `/munge` or `/src` directory depending on their purpose (general, data munging, actual analysis, respectively). Keeping all of this straight seems to me a waste of time from doing the actual analysis.
+
+In a package, functions are in the `/R` directory, and that is where they live. They may be organized into different files depending on their purpose, names, or methods and classes (not fun `S4`, not fun), but at least I know where they are. 
+
+### Documentation
+
+This for me is the kicker. With packages (and `roxygen2` and `devtools`), I can document everything in such a way that the documentation is available **without looking at the source file**; (i.e. `?function`) be reminded of the various arguments, or look up the properties of my documented data set. 
+
+### Dependencies
+
+`R` packages naturally tell you what other packages they depend on, and will try to resolve those dependencies when you install them. Now, granted, this isn't a perfect process (anyone trying to upgrade their full `R` package library knows this), and with the proliferation of packages on `github` is likely to get more difficult (hmmm, would be nice to have a central registry of `github` available packages), but in general it does work (for a different solution, check out [packrat](http://rstudio.github.io/packrat/). This means that an analysis that is a package can naturally get it's dependencies at install time (really try it, go ahead and install my [example package](https://github.com/rmflight/ismbTweetAnalysis) without having `stringr` installed).
+
+In contrast, `ProjectTemplate` assumes all of the required packages are already installed, and if you shared your analysis directory with someone else, they have to look at the list and install everything before they are able to run it (although this is probably not  that bad).
+
+## Package Reproducibility
+
+In this day and age of seeking to provide **reproducible** analyses, having all of the entities (code, data, final report) in a container that knows how to install it's dependencies, and that works within the language ecosystem to provide documentation on the functions used, seems really useful. I believe that `R` packages provide that better than most other solutions I have seen lately.
+
+## Outputs
+
+"But I don't want to write my final report using Markdown or Latex" you cry! "How will I get my graphs or tables otherwise?" if using a package? I didn't mention this in the previous posts, but it is possible to write the code in such a way to save graphics or write text files into a specific location (I would recommend `/inst/extdata/output` if it was me).
+
+## Final Thoughts
+
+As I said, I think I understand John's thought process into designing `ProjectTemplate`, but given how easy it is to work with packages in the current `R` ecosystem, and that `R` packages are the built-in way to share things, I think it is more natural to use packages directly with prose of the analysis as a package vignette. But everyone works differently. If you are writing analyses in `R`, please use a sane directory setup (either packages, or `ProjectTemplate` or something else), and use version control (really, please learn how to use `mercurial` or `git`, your future self will thank you for it).
+
+Remember, when the reviewer (or your boss, or you) asks for something to be added, or to change something slightly in a figure, or add a new dataset, you want to be able to do it easily, and regenerate *all* of your results without manual intervention.

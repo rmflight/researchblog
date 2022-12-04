@@ -1,0 +1,131 @@
+---
+title: "R Job Notifications Using Twitter"
+date: '2014-06-30'
+categories: [R, twitter, development, programming]
+---
+
+There has been some interesting activity about getting `R` to send a notification somehow when a long running job is completed. The most notable entries I have seen in this category are [`RPushBullet`](http://dirk.eddelbuettel.com/code/rpushbullet.html) for web notifications and [`pingr`](http://www.sumsar.net/blog/2014/01/announcing-pingr/) for audio notifications. 
+
+Although `RPushBullet` looks really cool (and Dirk does great work), I wondered if there was a way to do this using a free service that I already had access to, namely `twitter`. See, `twitter` will notify you when someone else uses your handle in a tweet. If you have `twitter` notifications on your device, it should also appear on a mobile device, and if you are using `tweetdeck` on a desktop or laptop machine, you can also set up to get notifications there. 
+
+However, the default method of authenticating and caching `oauth` tokens for `twitteR` does not seem to be really useful for job notifications. However, we will take some precautions so that it is not too big a deal, and still be really useful.
+
+## How??
+
+In a nutshell, using a specific twitter account and app that have credentials stored in an `R` package. Below are the steps I used to make this happen. You can see my job notification twitter user [rmf_notifier](https://twitter.com/rmf_notifier) and the [package I created](https://github.com/rmflight/rmfNotifier).
+
+### Install twitteR
+
+Before you begin, you should have a modern version of `R` (all of this was initially done using v 3.0.1), `devtools`, and the [`twitteR`](https://github.com/geoffjentry/twitteR) package from github.
+
+```{r eval=FALSE}
+library(devtools)
+install_github('twitteR', username='goeffjentry')
+```
+
+### Setup a new package
+
+We are going to create a personal package solely for sending `twitter` notifications and storing the API credentials. 
+
+**Warning**: Hadley Wickham in the `httr` token caching documentation advises against storing token caches in a package, but this is part of the reason we are creating a `twitter` user and app solely for this purpose (this makes it easier to revoke tokens, or remove the app, delete the user, etc if something goes wrong). This package also should never be published with the `.rdata` file included, and that file should never be under version control. If any of these things happen, someone else may be able to hijack this `twitter` account.
+
+You should create your package (create a directory with `DESCRIPTION`, `R` directory, `data` directory, and `NAMESPACE` file). Look up how to do this if you are not sure. Set your working directory to be your package base directory for all further steps.
+
+**All following steps assume that you are working in the base package directory.**
+
+### Twitter Account
+
+We are going to create a `twitter` *account* and *app* specifically for sending this one type of notification. You can register a new `twitter` account using a new email (if you use `gmail` you can add a dot (.) anywhere in your email address for a unique address that still reaches you) and setup a new user name. 
+
+After setting up your new account, log in to https://apps.twitter.com, and `create new app`. Fill in all the necessary details, and when you have it up, `modify app permissions` to be `Read and write`. This will allow it to actually send messages on the accounts behalf. 
+
+### Credentials
+
+Click on the `API Keys` tab, and set up your api data by copying the values into the code below. Note if you dont see a token and a secret, try hitting `test oauth` to generate one.
+
+```{r setupAPI, eval=FALSE}
+apikey <- "" #API Key
+apisecret <- "" #API Secret
+token <- "" #Access Token
+tokensecret <- "" #Access token secret
+```
+
+And now we will authorize our app and make sure that it can tweet.
+
+```{r authorizeApp, eval=FALSE}
+library(twitteR)
+setup_twitter_oauth(apikey, apisecret, token, tokensecret)
+tweet("this is a test") # make sure you can see a tweet
+tweet("@username this is a test") # check that you see notifications, change @username to your own username
+```
+
+And then save the cache for later use.
+
+```{r savecache, eval=FALSE}
+local_cache <- get("oauth_tken", twitteR:::oauth_cache) # saves the oauth token so we can reuse it
+save(local_cache, file="data/oauth_cache.RData")
+```
+
+### Using saved credentials
+
+To make sure that our package uses the saved credentials every time, we will include a `.onLoad` function that sets the `oauth` cache up properly. This should go in the file `R/zzz.R`
+
+```{r resetCache, eval=FALSE}
+.onLoad <- function(libname, pkgname){
+  cachedToken <- new.env()
+  dataFile <- system.file("data/oauth_cache.RData", package="packageName")
+  load(dataFile, cachedToken)
+  assign("oauth_token", cachedToken$local_cache, envir=twitteR:::oauth_cache)
+  rm(cachedToken)
+}
+```
+
+Notice that this function loads the credentials into a particular environment, and then sets the `oauth_token` variable in the `twitteR:::oauth_cache` environment to our saved credentials.
+
+### Our Notifying Function
+
+Finally, we need a function that we can use to notify us when something happens. One could simply `importFrom(twitteR, tweet)` and `export(tweet)` in the namespace, but why should we have to type the `username` every time? This should go in `R/packageFunction.R`.
+
+```{r notifyFunction, eval=FALSE}
+#' notifies job status
+#' 
+#' sends a tweet to rmflight the job status
+#' 
+#' @param tweetText the text to include in the tweet
+#' @export
+#' @importFrom twitteR tweet
+#' @importFrom lubridate now
+jobNotify <- function(tweetText, addnow=TRUE){
+  t <- ""
+  if (addnow){
+    t <- now()
+  }
+  fullTweet <- paste("@username", tweetText, t, sep=" ") # change @username to where you want to recieve notifications
+  tweet(fullTweet)
+}
+```
+
+#### Importance of Including Time
+
+In my initial implementation, I did not include the date-time string. Upon actual usage, I noticed that `twitter` would reject subsequent tweets with identical text. The simplest way to get around this is to add the date-time string to the tweet, thereby making it unique.
+
+### Test it
+
+And there you go. After building and installing your new package and loading it, you should be able to do:
+
+```{r testit, eval=FALSE}
+library(packageName) # change to the name of your own package
+jobNotify("this is a test")
+```
+
+And get a notification. Now you can simply put the above code at the end of any long running jobs, and voila, you are getting notifications from `twitter` about your `R` jobs. 
+
+**You are subject to `twitters` app limits**, so be careful how you use this. If you had lots of mini jobs, you would want to put this after **all** of them were finished, not have each one call this.
+
+## Extensions
+
+I would like to find a way to extend this to `watching` jobs and sending a notice at particular levels of completion, and also be able to have a try-catch that catches an error and can tweet that the job error'd out. But this level is still rather useful I think.
+
+## Edit
+
+On July 3, 2014 I modified the `jobNotify` function to also include a date-time string, and added an explanation of why that was necessary.

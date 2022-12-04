@@ -1,0 +1,111 @@
+---
+title: "Things I Learned About distill"
+subtitle: |
+  The various things I learned about the distill blog setup while converting posts over from my old blogdown site.
+date: 02-28-2021
+categories: [distill, blogdown, rmarkdown]
+---
+
+
+## Converting From Blogdown
+
+So I converted this site to use [distill](https://blog.rstudio.com/2020/12/07/distill/) from my previous [blogdown](https://bookdown.org/yihui/blogdown/) site.
+This involved a bit of a learning curve to get things right.
+And my blogdown site was pretty old, as in the default in blogdown at the time was for each post to be it's own file, not it's own directory, and the theme I used was the Academic theme (which has since changed names and I believe gotten more complicated).
+This is not to knock on blogdown and Yihui (and other's) work in this area.
+distill just felt like a better fit.
+Hopefully I'm right.
+And hopefully this will be the last time I change where posts are located (yes, I'm still not using Netlify, so I still don't have redirects ...), because I wanted to use the date-title format, and I didn't keep the [slug] of the old YAML.
+I could have, but I wanted post locations to make sense across the site.
+
+So I first used {blogdown} to convert my old blog directory to a bundled version using `blogdown::bundle_site()`.
+I then wrote a script to create the new directories based on the bundled ones, and then copy the old `index.Rmd` to the new direcotry with the proper name.
+I also decided I wanted to add a `refs.bib` to each directory so there was no friction in setting up references.
+
+```{r copy_script, eval = FALSE}
+new_post_dir = "~/Projects/personal/researchBlog_distill/_posts"
+old_post_dir = "~/Projects/personal/researchBlog_blogdown_convertFolders-bundle/content/post"
+
+old_posts = dir(old_post_dir, full.names = TRUE, recursive = FALSE)
+
+old_properties = file.info(old_posts)
+
+keep_old = old_posts[old_properties$isdir]
+
+new_posts = dir(new_post_dir)
+
+keep_old = keep_old[!(basename(keep_old) %in% new_posts)]
+
+purrr::walk(keep_old, function(in_dir){
+  new_loc = file.path(new_post_dir, basename(in_dir))
+  dir.create(new_loc)
+  index_loc = file.path(in_dir, "index.Rmd")
+  split_name = strsplit(basename(new_loc), "-", fixed = TRUE)[[1]]
+  split_name = split_name[seq(4, length(split_name))]
+  new_index = file.path(new_loc, paste0(paste(split_name, collapse = "-"), ".Rmd"))
+  file.copy(index_loc, new_index)
+})
+
+new_posts2 = dir(new_post_dir, full.names = TRUE)
+purrr::walk(new_posts2, function(in_dir){
+  file.create(file.path(in_dir, "refs.bib"))
+})
+```
+
+As I figured out what extra I needed (see some of the sections below) in the YAML, I opened up each post, modified the categories as necessary, and then copied in the extra bits of YAML containing a mock description and the rest regarding TOC and code highlighting.
+
+## Descriptions: Do or Do Not, but Be Consistent
+
+`distill` has these nice descriptions that are displayed on the index page.
+However, if you render the site and some posts have descriptions and some don't, you will get a really, really weird error about `ETL text` or something.
+What to do, is if you have some posts with and without descriptions, is add to the ones without (having an empty description is fine), and then delete the XML files in your output director (default is `_site`) directory, and re-knit the posts and rebuild the site.
+Hopefully that makes the error go away.
+
+## Theming can be a bit of a pain
+
+OK, I brought this on myself, I admit.
+I **really, really like** dark themes. 
+I know I could just leave it white, and keep using the excellent [deluminate](https://deluminate.github.io/) extension to keep things dark, but I believe if I like a dark website, then my actual website should be dark too.
+I had to modify a lot of *divs* to make my site look nice (you can see the theme [here](https://github.com/rmflight/researchBlog_distill/blob/main/rmflight.css)).
+Too many.
+
+## Table of contents doesn't seem to be site-wide
+
+Including table of contents in the yaml of `_site.yml` doesn't make them magically appear on every page.
+You have to set them on each post.
+Therefore, you decide before you render the post.
+
+## Utterances was easy!
+
+Thanks to [Miles McBain](https://milesmcbain.micro.blog/2020/09/04/how-i-got.html), getting the Utterances comment framework in was easy-peasy!
+And it's something you can add after the fact, because it's done as an [HTML include](https://github.com/MilesMcBain/milesmcbain.com/blob/master/utterances.html) and a simple addition to your `_site.yml`.
+
+```
+output:
+  distill::distill_article:
+    includes:
+      in_header: utterances.html
+```
+
+To check if it is working, you will need to `serve` the site using `servr::httd("site_dir")` though, you can't just open the html pages and look.
+
+## Search is awesome!
+
+Having search on the website is soooo nice!
+And it searches the descriptions, so as long as you write something useful in the description, it will actually work.
+Again, testing it requires `servr::httd()`.
+
+## Highlighting must be set on each article
+
+If I set the code highlight theme in `_site.yml`, it doesn't seem to work.
+
+## Adding Images
+
+It took some reading to figure out I should be using `knitr::include_graphics()` to have images into my blog posts.
+From what I can tell, I should have been using this long ago.
+
+## Citations, Footnotes, Asides
+
+These are all really cool features that I want to use waaaayyy more in my posts.
+I started converting some of my posts to use them (see my code above that created refs.bib files in all of the post directories), and realized if I did that I'd never get the updated blog posted.
+So expect to see more of those things in *new* posts, and maybe as I get time (hah!) I'll convert some older ones over.

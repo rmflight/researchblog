@@ -1,0 +1,119 @@
+---
+title: "Creating an Analysis as a Package and Vignette"
+date: 2014-07-28
+categories: [R, development, packages, vignettes, analysis, programming]
+subtitle: |
+  A walkthrough creating an analysis project as a package.
+---
+
+*Edit 2022-12-02*: [I don't recommend](/posts/2021-03-02-packages-dont-work-well-for-analyses-in-practice) this approach anymore.
+
+Following from my [last post](/posts/2014-07-28-analyses-as-packages), I am going to go step by step through the process I use to generate an analysis as a package vignette. This will be an analysis of the tweets from the [2012](http://nsaunders.wordpress.com/2012/08/16/twitter-coverage-of-the-ismb-2012-meeting-some-statistics/) and [2014](https://github.com/stephenturner/twitterchive) ISMB conference (thanks to [Neil](https://twitter.com/nsaunders) and [Stephen](https://twitter.com/genetics_blog) for compiling the data). 
+
+I will link to individual commits so that you can see how things change as we go along.
+
+## Setup 
+
+### Initialization
+
+To start, we will initialize the package. `devtools` or `rstudio` make this rather easy:
+
+```{r setupPackage, eval=FALSE}
+library(devtools)
+create("~/Documents/projects/personal/ismbTweetAnalysis")
+```
+
+```
+Creating package ismbTweetAnalysis in ~/Documents/projects/personal
+No DESCRIPTION found. Creating with values:
+
+Package: ismbTweetAnalysis
+Title: What the package does (short line)
+Version: 0.1
+Authors@R: "First Last <first.last@example.com> [aut, cre]"
+Description: What the package does (paragraph)
+Depends: R (>= 3.0.3)
+License: What license is it under?
+LazyData: true
+Adding Rstudio project file to ismbTweetAnalysis
+```
+
+Alternatively, you can use `File > New Project > New Directory > R Package` in `rstudio`. Don't forget to `Create a git repository` (or `git init` in the directory). Note that the `devtools` created package will pass `CRAN` tests, whereas the `rstudio` will not.
+
+Open the `DESCRIPTION` file, and you will need to change the `Title`, `Authors` or `Authors@R`, `Description`, `License`, and add `VignetteBuilder: knitr` at the end. [Here](https://github.com/rmflight/ismbTweetAnalysis/commit/16ddb22e252520d6088dc17d4c63e9c41dc32314) is what my initial setup looks like.
+
+### RStudio Project Options
+
+In addition, to make our life easier, we will change some options in the `rstudio` project. 
+
+`Tools > Project Options > Build Tools`, check `Generate documentation with Roxygen`, and select turn on all the options. We want to `roxygenize` when we `Build & Reload` especially, and have `roxygen` control the `NAMESPACE` file so we don't worry about it.
+
+Alternatively, you can use `document` with `reload=TRUE` in `devtools` to update documentation and reload the functions. 
+
+Having **this** particular option of `documenting` and `reloading` the package every time I write a new function is what makes this easy. I write the new function, `document`/`reload`, and I can keep chugging along with my analysis document. And if I have to restart, I just `run all` chunks to get back to where I need to be.
+
+## Data
+
+Now we need some data. Neil's data from 2012 uses a CSV format, however the tweets themselves have commas, so we will download the `rdata` file and use that, and also Stephen's data from 2014. However, there are three separate files for 2014, so we will download all three files and combine them. Both initial data sets will go in the `/inst/extdata` folder, and we will clean them up.
+
+[Here](https://github.com/rmflight/ismbTweetAnalysis/commit/391aee099f08c94d26e183e2d9a80781afa722bc) we have added our 4 data files.
+
+### Vignette
+
+We are going to write this analysis as the vignette of the package, using `R markdown` as the language. To do that we need to create the file and add some boilerplate at the top so that the vignette gets generated properly. [Here](https://github.com/rmflight/ismbTweetAnalysis/commit/c1de77bfc803435b3af32f641b165615aaabb57b) is the initial vignette, it is nothing but the `engine` and `index` definition, which are important.
+
+# Start the Analysis!
+
+At this point we can start the analysis. The actual analysis will be done in the `Rmd` vignette file. The basic process is to add prose describing the analysis, with actual code to generate results and figures embedded in the `Rmd`, and adding functions and documentation (as `roxygen` tags) in the `.R` file, while doing iterations of `document` or `Build/Reload` along the way. Iterations of `document` / `Build/Reload` after writing new functions in the `.R` file will make them available to us in our workspace, with tab-completion in `rstudio`. 
+
+The following are bullet point summaries of points when I committed or built/reloaded, with links to the commit so you can see what has changed in the package.
+
+* [Adding description of data sources to analysis ](https://github.com/rmflight/ismbTweetAnalysis/commit/f3dabdc3f7fb981489ba35e18bd458a983b33698)
+* [Munging 2012 data a little, saving, and documenting](https://github.com/rmflight/ismbTweetAnalysis/commit/be314c3edb8953adc4351e90c2b038285cb78d3b)
+  * Now we can load up this data with `data(ismb2012)`
+* [Function written and exported for reading ST's data files](https://github.com/rmflight/ismbTweetAnalysis/commit/f90268c97e5a94c5cd052f40d7f394d81e8adc61)
+* [Read in, combine, and re-save ST's archive](https://github.com/rmflight/ismbTweetAnalysis/commit/f46a8b21bf3a168ff469925fab38c6ee8ccb9a08)
+  * Note that this and previous chunk have `eval=FALSE`, so that they are not run in the analysis, but they were run interactively while I was doing the work.
+* [Simple histogram of 2012 tweets by day](https://github.com/rmflight/ismbTweetAnalysis/commit/30509c15f3c9590dc07dbbb26d59733664f01f65)
+* [Making a counting function by `screenName`](https://github.com/rmflight/ismbTweetAnalysis/commit/13138980de9531e92fe03a7d0db40302e5dac3c5)
+* [Examining the top tweeters using previous function](https://github.com/rmflight/ismbTweetAnalysis/commit/72434fd84d222f2284c97c771fa0d0f3d3577ac7)
+* [Fixing data files, because of issues with having the same named object in different RData files](https://github.com/rmflight/ismbTweetAnalysis/commit/aff15c9205667879ab9669c26f6bc8ff47d153b8)
+* [Examining top tweeters in 2014](https://github.com/rmflight/ismbTweetAnalysis/commit/7e65de3a88ee0495fe9b92f9291bc590d69eab9e)
+* [Density of tweets with respect to starting time of conference](https://github.com/rmflight/ismbTweetAnalysis/commit/285926ebe051992d46a91040aaed0a14142f279c)
+* [Counting how often a specific tweet was retweeted](https://github.com/rmflight/ismbTweetAnalysis/commit/93b05400d158414a725b456b1698a941c6c80b42)
+* [Getting raw tweet ranks for each individual](https://github.com/rmflight/ismbTweetAnalysis/commit/3e25bdaec902630943d694706ed576dca0e74d62)
+* [Examining the ranks by total retweeted tweets per user](https://github.com/rmflight/ismbTweetAnalysis/commit/6987116ce6c6ebe78dfaac9590b80806c08f9e6f)
+
+And at this point I'm going to stop there. Now we have an analysis (that we will make into a nice output shortly), and we have munged 2 data sets, and wrote 6 functions, that may be useful in other contexts.
+
+## Preview Report
+
+To preview the report, you can use the `Knit HTML` button in `rstudio`, or also use `knitr` directly. This will give you an html preview of the final report.
+
+## Generate Vignette
+
+Once happy with the report, you can use `devtools::build_vignettes()` to generate the vignette files that will be copied to the relevant locations.
+
+## Commit and Push it ALL!
+
+At this point, if you are happy with the package and analysis as a whole, you should commit all the package files to version control and make it available. In this case this means:
+
+* inst/doc: the output vignette
+* man: the function documentation
+* DESCRIPTION: our description file
+* NAMESPACE: the file documenting our namespace
+
+You can see this commit [here](https://github.com/rmflight/ismbTweetAnalysis/commit/7387a727708f8413ff68be1a5e285777b85ca7c7).
+
+Now your package can be installed by others using `devtools::install_github()`. You could also submit your package to `CRAN` or `Bioconductor` if so desired.
+
+## Not Covered
+
+Now this was a simple example. Ideally I should have included tests for my functions, you can read up [1](https://github.com/hadley/testthat) [2](http://adv-r.had.co.nz/Testing.html) on how to do that. In addition, none of my functions use methods ([see why they are useful](http://adv-r.had.co.nz/OO-essentials.html)).
+
+I hope that you find this example useful, and will consider using `packages` more often even for **simple** analyses.
+
+* Reproducibility: One issue that may come up is how to make sure that you or someone else can directly reproduce the work in your package. Again, Hadley Wickham and the `rstudio` team have been thinking about this, and there is now the [`packrat` package](http://rstudio.github.io/packrat/) to make a project completely self-contained with all of it's dependencies.
+
+*Edit 2014-07-28* - added note on reproducibility at the end. 
+

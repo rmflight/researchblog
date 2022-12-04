@@ -1,0 +1,49 @@
+---
+title: "About"
+image: static/img/profile.jpg
+about:
+  template: jolla
+  links:
+    - icon: github
+      text: Github
+      href: https://github.com/rmflight
+    - text: "{{< ai orcid >}} ORCID"
+      href: https://orcid.org/0000-0001-8141-7788
+    - text: "{{< ai google-scholar >}} Scholar"
+      href: https://scholar.google.com/citations?user=G8bFNwYAAAAJ
+    - icon: mastodon
+      text: Mastodon
+      href: https://mastodon.social/@rmflight
+    - icon: envelope
+      text: Email
+      href: mailto:rflight79@gmail.com
+---
+
+## The Blog
+
+This is a place for me to share analysis tips and tricks, musings on open and reproducible science, as well as recent publications, and whatever is on my mind.
+You are likely to find personal analysis projects, as well as my musings on R code and different types of algorithms.
+
+All opinions are my own and do not reflect those of my employer or the university where I work.
+
+## Me
+
+I'm a senior research associate in bioinformatics at the [Moseley Bioinformatics and Systems Biology Lab](https://bioinformatics.cesb.uky.edu/), which is part of the [Markey Cancer Center](https://ukhealthcare.uky.edu/markey-cancer-center) at the [University of Kentucky](http://www.uky.edu/). 
+I work with our collaborators to analyse a variety of -omics data, including transcriptomics and metabolomics using both previously established and newly developed methods.
+
+I have been analyzing -omics type data since 2004, and programming in R since 2010.
+I authored the [categoryCompare](https://bioconductor.org/packages/release/bioc/html/categoryCompare.html) Bioconductor package for comparing -omics data using annotations.
+
+You can find my publications (and other research outputs) on my [ORCID profile](https://orcid.org/0000-0001-8141-7788).
+
+### Interests
+
+Open Science | Bioinformatics | Metabolomics | Structural Biology | Systems Biology
+
+### Education
+
+PhD | Chemistry | 2009 | Dalhousie University
+
+MSc | Chemistry | 2004 | University of New Brunswick
+
+BSc | Biology-Chemistry | 2002 | University of New Brunswick

@@ -1,0 +1,38 @@
+---
+title: "Installing MatLab vs Installing R"
+date: 2014-02-10
+categories: [MatLab, R]
+subtitle: |
+  Personal frustrations around installing MatLab led to this particular rant.
+---
+
+I retweeted this a few days ago: 
+
+[1. Open MATLAB for first time in a few years after using #rstats. 2. Site license doesn't work right. 3. F*** MATLAB, I'll try to do it in R](https://twitter.com/drdrewsteen/statuses/431543752419577856)
+
+And as I have started the process of installing `MatLab` on my own machine because I want to translate a published `MatLab` package into `R`, I am reminded of how painful the process can be.
+
+As Andrew noted above, often times a university will have a site license for `MatLab`, and the license server will be local, and your installation must just contact the license server to know it is legit and run. However, if the server crashes (which they seem to be prone to in my experience), then you can't run `MatLab` at all.
+
+## Installing MatLab
+
+At my university, the process for even getting and installing a copy of `MatLab` is rather tedious. 
+
+* Prove you are someone who is in a position to be allowed to install it
+* Receive email with license file and further instructions
+* Open an IT ticket to have an account created at MathWorks
+* Login to MathWorks and download MatLab
+* Install
+* Give license key
+* Save license file
+* Run MatLab
+
+Now, I understand that MathWorks wants to protect their intellectual property, and I also understand that they have previously been ripped off rather badly in the past (having a company purchase a single license and run a hundred copies). But this process is not conducive to getting research done.
+
+## Installing R
+
+* Download appropriate `R` installer from http://r-project.org
+* Install
+* Install desired packages
+
+Which one of these is going to make it easiest to actually get coding and getting stuff done?

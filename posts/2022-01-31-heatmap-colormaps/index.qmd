@@ -1,0 +1,57 @@
+---
+title: "Heatmap Colormaps!"
+subtitle: |
+  Examples of good colormaps to use for heatmaps, both divergent and incremental.
+date: 2022-01-31
+categories: [colormaps, visualization, heatmap, random-code-snippets]
+---
+
+## Normal Incrementing Data
+
+Nine times out of ten, you probably need just one of the `{viridis}` colormaps for values that are increasing in one direction.
+For example, correlation values that are all positive, or abundances from RNA-Seq, etc.
+If you want to use them with `{ComplexHeatmap}`, you do so like this:
+
+```{r viridismap, eval = FALSE}
+# correlation example for 0 - 1
+# imagine cor_vals is a set of correlation values
+library(ComplexHeatmap)
+cor_start = 0
+cor_end = 1
+n_break = 20
+viridis_map = circlize::colorRamp2(seq(cor_start, 
+                                       cor_end, 
+                                       length.out = n_break),
+                                   viridis::viridis(n_break))
+
+Heatmap(cor_vals, 
+        col = viridis_map, 
+        ...)
+```
+
+## Divergent Data
+
+In this case, you have values where a **central** value is a natural point that you want to highlight things **above** and **below** that value.
+Examples include correlations that include negative and positive correlations, log-fold-changes above and below zero.
+In this case, I prefer the `{scico}` package with the `vik` colormap.
+
+```{r scicomap, eval = FALSE}
+cor_start = -1
+cor_end = 1
+n_break = 20
+
+scico_map = circlize::colorRamp2(seq(cor_start
+                                     cor_end,
+                                     length.out = n_break),
+                                 scico::scico(n_break, 
+                                              palette = "vik"))
+
+Heatmap(cor_vals, 
+        col = scico_map,
+        ...)
+```
+
+## Other Colormaps?
+
+Do you have other suggestions for colormaps, both incremental and divergent?
+Please let me know in the comments!

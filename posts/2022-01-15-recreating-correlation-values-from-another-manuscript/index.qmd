@@ -1,0 +1,172 @@
+---
+title: "Recreating Correlation Values from Another Manuscript"
+subtitle: |
+  Documenting my journey trying to recreate some correlations calculated in another manuscript.
+date: 2022-01-15
+categories: [reproducibility]
+bibliography: refs.bib
+---
+
+
+## Background
+
+I've been working on a manuscript for our newish correlation method, information-content-informed Kendall-tau (ICI-Kendalltau, package currently at [@icikendalltau]).
+As part of that manuscript, we wanted to highlight how well the correlation measure detects outlier samples.
+Two datasets we are using for that aspect are public, one from The Cancer Genome Atlas and the other from the Barton group.
+The Barton group and collaborators produced a highly replicated RNAseq yeast dataset, 48 replicates in two conditions, and have used it in various analyses [@Gierlinski2015; @Schurch2016].
+
+## So What
+
+For my manuscript, ideally I want to be able to comment on the outliers found in one of the Barton group manuscripts [@Gierlinski2015].
+To do that, I need access to one of:
+
+* the sample-sample correlations themselves,
+* the counts from each sample
+* or be able to recreate counts from each sample.
+
+Several years ago I was asking about this dataset on twitter when I was using it for another project, because the project ID in the SRA didn't have a mapping to condition.
+Dr. Geoff Barton pointed me to a metadata file available on figshare [@Barton2015].
+This allowed me to generate read counts across biological replicates (which is what I was interested in at the time).
+However, if I had poked around the figshare project a bit more, I would have likely seen both of the files with read counts for each replicate already available [@SNF2Barton2015; @WTBarton2015].
+It really sucks that I hadn't noticed these other files years ago, it would have saved me the effort in remapping and generating gene counts myself, as well as getting really weird correlation values compared to [@Gierlinski2015].
+
+## My Correlations
+
+From the demultiplexed read data and the metadata file I found several years ago, I had run RNA-seq mapping software to generate read counts for each sample in each lane, and summed them across lanes.
+I know how to do these kinds of things, even though I will be the first to admit it is **not** my personal bread and butter analysis (I normally get involved after count generation).
+With the (few) hints from the manuscript about how [@Gierlinski2015] did the correlation calculation (see more below), I don't get anything close to the range of median correlation values within each class of samples.
+Which I thought was very, very weird.
+I implemented a variety of transformation methods and inclusion of missing values for my correlation calculations:
+
+* logged values (log and log1p)
+* raw values
+* removal and inclusion of missing (0) values
+
+Even with all of these variations, I could not come close to the same values I found presented in their manuscript.
+Here, in panel (a) of Figure 2 from [@Gierlinski2015], the median correlations range from 0.7 to 1.
+
+```{r fig.cap = "Figure 2(a) from [@Gierlinski2015]. Identifying bad RNA-seq replicates in the WT (left) and Δsnf2 (right) data. The top three panels (a–c) show individual criteria for identifying ‘bad’ replicates which are combined into a quality score (d) in order to identify ‘bad’ replicates in each condition. The identified ‘bad’ replicates are shown as numbered points in each panel. The individual criteria are (a) median correlation coefficient, ri∼⁠, for each replicate i against all other replicates, (b) outlier fraction, fi⁠, calculated as a fraction of genes where the given replicate is more than five-trimmed standard deviations from the trimmed mean and (c) median reduced χ2 of pileup depth, χ∼2i⁠, as a measure of the non-uniformity of read distribution within genes (see also Fig. 3)", out.extra = "class=external", echo = FALSE}
+knitr::include_graphics("gierlinski_2015_fig2_cropped.png")
+```
+
+My ranges, however, were much different.
+
+```{r load_ranges, message=FALSE}
+library(dplyr)
+out_ranges = readRDS(here::here("data_files", "ranges.rds"))
+knitr::kable(out_ranges$rmf_ranges, digits = 2, caption = 'RMF median correlation ranges. Which is "which" method was used to calculate the correlations.')
+```
+We can see in this table, that my median correlation ranges are not even close to what we can see in the figure.
+
+And the lowest values and samples didn't seem to be right either.
+
+```{r show_mine}
+out_ranges$rmf_medians %>%
+  dplyr::filter(which %in% "raw_no0") %>%
+  dplyr::group_by(sample_class) %>%
+  dplyr::arrange(med_cor) %>%
+  dplyr::slice_head(n = 6) %>%
+  knitr::kable(., digits = 2, caption = "Lowest median correlation values using my own counts.")
+```
+
+## Finding the Data
+
+Finally, during the week of 2021-11-25, I happened across another manuscript on this dataset from 2016 [@Schurch2016], that mentions a GitHub repo that lo and behold had copies of the preprocessed data to the level of gene counts per biological replicate [@bartongithub2015].
+Awesome!
+
+## New Correlation
+
+Using that preprocessed data, I was finally able to get what amounted to identical values of correlation, based on comparing the lowest correlation values with the figure.
+Great.
+
+```{r table_barton}
+knitr::kable(out_ranges$barton, digits = 2, caption = 'Barton median correlation ranges. Which is "which" method was used to calculate the correlations.')
+```
+
+In this table, for the **raw** correlations, we finally see median correlation ranges that match what is observed in the figure, especially at the low end.
+Importantly, the Snf2 lowest value is lower than the WT lowest value.
+So I'm pretty sure I'm getting the correct sample-sample correlations now.
+
+As well, if I look at the lowest sample - sample correlations in each class, the sample IDs match what is in the figure as well, and so do the median sample-sample correlations for those samples!
+
+```{r show_values}
+out_ranges$barton_medians %>%
+  dplyr::filter(which %in% "raw_no0") %>%
+  dplyr::group_by(sample_class) %>%
+  dplyr::arrange(med_cor) %>%
+  dplyr::slice_head(n = 6) %>%
+  knitr::kable(., digits = 2, caption = "Lowest median correlation values using Barton counts.")
+```
+
+## Why No Log-Transformation?
+
+One interesting thing about having the correct correlations is discovering that Gierlinski et al didn't use log-transformed data in their Pearson correlation calculations.
+This seems unusual to me.
+All my career in -omics, the one thing I've had drilled into me is that doing a linear correlation on data that has proportional error component or variance is a **very bad** idea.
+Proportional error or variance means the variance increases with increasing mean values, which is definitely true of these count data.
+
+If I had to guess **why** log-transformed values weren't used, I think it is because of the analysis in the replicate paper about how well the un-transformed values fit a normal distribution vs a log-normal distribution.
+That figure and caption are provided here for reference.
+
+```{r fig.cap = "Figure 5 from [@Gierlinski2015]. Goodness-of-fit test results for normal (top panels), log-normal (middle panels) and negative binomial (bottom panels) distributions. Each panel shows the test P-value versus the mean count across replicates. Each dot represents equal-count normalized data from one gene. Panels on the left (a, b, e, f, i, j) show clean data with bad replicates rejected (42 and 44 replicates remaining in WT and Δsnf2, respectively). Panels on the right (c, d, g, h, k, l) show all available data (48 replicates in each condition). Due to the number of bootstraps performed, P-values for the negative-binomial test are limited to ∼10−2. Due to numerical precision of the software library used, P-values from the normal and log-normal tests are limited to ∼10−16. Below these limits data points are marked in orange (light gray in black and white) at the bottom of each panel. Horizontal lines show the Benjamini–Hochberg limit corresponding to the significance of 0.05 for the given dataset. The numbers in the right bottom corner of each panel indicate the number of genes with P-values below the significance limit and the total number of genes", out.extra = "class=external", echo = FALSE}
+knitr::include_graphics("gierlinski_2015_fig5.jpeg")
+```
+
+Just so you can see the difference using raw and log-space makes (besides the values in the above table), here are two of the replicate samples plotted against each other in raw and log-transformed values.
+
+```{r raw_log}
+library(patchwork)
+library(ggplot2)
+theme_set(cowplot::theme_cowplot())
+
+raw_plot = readRDS(here::here("data_files", "raw_plot.rds"))
+raw_p2 = raw_plot + 
+  coord_equal() +
+  geom_abline(slope = 1, color = "red")
+log_plot = readRDS(here::here("data_files", "log_plot.rds"))
+log_p2 = log_plot +
+  coord_equal() +
+  geom_abline(slope = 1, color = "red")
+raw_p2 + log_p2
+```
+
+We can summarize this behavior across **all** the replicate samples, looking at standard deviation (SD) and relative standard deviation (RSD, SD / mean).
+I took the counts from Barton group after removing outliers based on median correlations, and then calculate the mean, SD, and RSD across all replicates in each of Snf2 and WT.
+
+```{r sd_rsd, fig.height = 8, fig.width = 5}
+data_summary = readRDS(here::here("data_files", "summary.rds"))
+
+data_summary %>%
+  dplyr::filter(!(type %in% "diff")) %>%
+  ggplot(aes(x = mean, y = var)) + 
+  geom_point() +
+  facet_wrap(~ type, ncol = 1, scales = "free_y")
+```
+
+As we can see in the above figure, SD increases with increasing mean.
+Which is basically what we observe in the pairwise plot above.
+I'm pretty sure I've been taught **not** to do Pearson correlation on data with this structure.
+Interestingly, the RSD does become rather constant after a certain value in mean expression.
+
+## How Did I Miss the Original Data?
+
+Back to the question of finding the original data, it turns out I just didn't look hard enough at the first place that Geoff Barton sent me to.
+When I started poking around the figshare repo's from Geoff and others in the group and following links, it was easy to find a copy of the preprocessed data from each condition.
+
+## Why Was it So Hard to Reproduce Values?
+
+Another interesting thing about this endeavor was just how hard it was to reproduce the correlations.
+[@Gierlinski2015] was actually light on details of how the data was processed, and how the correlation was done.
+For example, the manuscript just says "Pearson correlation", with basically no other details.
+Were raw counts used or log-transformed?
+Were missing (count of 0) values in either sample removed prior to correlation?
+It was only when I finally happened across the GitHub repo that I finally got the answers I really needed.
+And for some reason, that manuscript doesn't mention the GitHub repo, or the data available on figshare.
+This points to the importance of citing and linking all the resources for a manuscript (or even a blog post!).
+And I'm not trying to knock on Marek, or Geoff, or Nick on this.
+In my experience, they post open things, and provide lots of data.
+But this highlights just how hard it becomes to recreate something if even a little piece of the data is missing.
+
+## Data Files and Scripts
+
+The rds files and a processing script to calculate the correlations and generate the plots are all available on the blog directory on GitHub [@flight_post].

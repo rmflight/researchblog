@@ -1,0 +1,409 @@
+---
+title: "Creating an Analysis With a targets Workflow"
+subtitle: |
+  How I work through an -omics analysis using the targets package.
+date: 2022-09-27
+categories: [analysis, development, mass-spectrometry, targets]
+---
+
+## TL;DR
+
+Setting up an analysis workflow using `{targets}` can be a little confusing without worked examples.
+This is my attempt to provide such an example.
+
+## Example Repo
+
+I've set up a [GitHub repo](https://github.com/rmflight/example_targets_workflow) that contains the data and scripts used for this analysis.
+
+## Packages
+
+For this example, if you want to follow along yourself, you will need Miles McBain's `{tflow}` package, which sets up an opinionated but loose directory / file structure.
+You will also need the `{targets}` package, and `{tarchetypes}`, and `{rmarkdown}`, as well as a few others.
+
+```r
+install.packages(
+ c("conflicted",
+   "dotenv",
+   "targets",
+   "tarchetypes",
+   "BiocManager",
+   "viridis")
+)
+
+BiocManager::install("limma")
+
+remotes::install_github(
+  c("milesmcbain/tflow",
+    "moseleyBioinformaticsLab/ICIKendallTau",
+    "moseleyBioinformaticsLab/visualizationQualityControl"))
+```
+
+## Example Analysis
+
+The example we will work through is a lipidomics data analysis.
+This data is based on real data, but sample IDs have been completely anonymized.
+I'm going to walk through all the steps I do to set up the analysis, mostly by commenting the example `_targets.R` file, and leaving the objects in the order they were created.
+
+### Create New Project
+
+We start by creating a brand new RStudio project to work in, or any new directory.
+
+### Initialize tflow
+
+```r
+tflow::use_tflow()
+✔ Setting active project to '/home/rmflight/Projects/personal/example_targets_workflow'
+✔ Creating 'R/'
+✔ Writing 'packages.R'
+✔ Writing '_targets.R'
+✔ Writing '.env'
+```
+
+In addition to this, I've created a `data` directory, and added the measurements CSV and metadata CSV to that directory.
+
+```r
+dir("data")
+[1] "sample_measurements.csv" "sample_metadata.csv"
+```
+
+Some important things about using `{tflow}` in this project:
+
+  * `{tflow}` uses the `targets::tar_plan()` function to contain the various targets in the workflow.
+  * This means you don't have to have a list of targets at the end of `_targets.R`.
+  * It also means you can use `{drake}` style targets of the form:
+  
+```r
+ out_target = function_name(in_target),
+ ...
+```
+
+I personally think it makes the workflow much more readable than the default targets style of:
+
+```r
+tar_target(
+  out_target
+  function_name(in_target)
+)
+```
+
+### Setup Packages
+
+We modify the `packages.R` file to add anything else we need.
+
+```r
+## library() calls go here
+library(conflicted)
+library(dotenv)
+library(targets)
+library(tarchetypes)
+# our extra packages for this analysis
+library(visualizationQualityControl)
+library(ggplot2)
+library(ICIKendallTau)
+library(dplyr)
+library(limma)
+```
+
+### Initial _targets.R
+
+This is what `{tflow}` sets up to run when you start.
+
+```r
+## Load your packages, e.g. library(targets).
+source("./packages.R")
+
+## Load your R files
+lapply(list.files("./R", full.names = TRUE), source)
+
+## tar_plan supports drake-style targets and also tar_target()
+tar_plan(
+
+# target = function_to_make(arg), ## drake style
+
+# tar_target(target2, function_to_make2(arg)) ## targets style
+
+)
+```
+
+Notice that the first thing that happens is that the `packages.R` file gets sourced, so that all your packages are loaded.
+Second, it runs through all of the files in `R`, and sources them to load all the functions.
+`{tflow}` and `{targets}` expound a functional workflow, where we put things in functions.
+Finally, it uses `tar_plan()` to run each of the targets.
+
+We will specify each of the targets in turn to fill out the analysis we want to do.
+
+### Load Data
+
+Lets first **declare** the measurement file and metadata file as actual targets, so if they change, then any dependent targets will be re-run as well.
+
+```r
+tar_plan(
+
+  tar_target(measurement_file,
+             "data/sample_measurements.csv",
+             format = "file"),
+  tar_target(metadata_file,
+             "data/sample_metadata.csv",
+             format = "file")
+
+)
+```
+
+Running it with `tar_make()` results in:
+
+```r
+tar_make()
+• start target measurement_file
+• built target measurement_file [0.001 seconds]
+• start target metadata_file
+• built target metadata_file [0.001 seconds]
+• end pipeline [0.078 seconds]
+```
+
+Then we add in actually reading in the data.
+
+```r
+tar_plan(
+
+  tar_target(measurement_file,
+             "data/sample_measurements.csv",
+             format = "file"),
+  tar_target(metadata_file,
+             "data/sample_metadata.csv",
+             format = "file")
+
+  lipid_measurements = readr::read_csv(measurement_file),
+  lipid_metadata = readr::read_csv(metadata_file),
+
+)
+```
+
+```r
+tar_make()
+✔ skip target measurement_file
+✔ skip target metadata_file
+• start target lipid_measurements
+Rows: 1012 Columns: 16
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr  (4): class, name, group_units, feature_id
+dbl (12): WT_1, WT_2, WT_3, WT_4, WT_5, WT_6, KO_1, KO_2, KO_3, KO_4, KO_5, ...
+|
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+• built target lipid_measurements [0.305 seconds]
+• start target lipid_metadata
+Rows: 12 Columns: 18
+── Column specification ────────────────────────────────────────────────────────
+Delimiter: ","
+chr (10): parent_sample_name, assay, cell_line, client_matrix, client_sample...
+dbl  (8): client_identifier, client_sample_number, group_number, sample_amou...
+/
+ℹ Use `spec()` to retrieve the full column specification for this data.
+ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+• built target lipid_metadata [0.07 seconds]
+• end pipeline [0.47 seconds]
+```
+
+### Exploratory Data Analysis
+
+For the exploratory data analysis (EDA), I like to put that into a report.
+You set those up using `tflow::use_rmd("document_name")` or `tflow::use_qmd("document_name)`.
+An example [EDA report](https://github.com/rmflight/example_targets_workflow/blob/main/doc/exploration.Rmd) is available at the actual repo.
+
+```r
+tflow::use_rmd("exploration")
+✔ Setting active project to '/home/rmflight/Projects/personal/example_targets_workflow'
+✔ Writing 'doc/exploration.Rmd'
+Add this target to your tar_plan():
+
+tar_render(exploration, "doc/exploration.Rmd")
+```
+
+```r
+tar_plan(
+
+  tar_target(measurement_file,
+             "data/sample_measurements.csv",
+             format = "file"),
+  tar_target(metadata_file,
+             "data/sample_metadata.csv",
+             format = "file")
+
+  lipid_measurements = readr::read_csv(measurement_file),
+  lipid_metadata = readr::read_csv(metadata_file),
+  
+  tar_render(exploration, "doc/exploration.Rmd")
+)
+```
+
+```r
+> targets::tar_make()
+✔ skip target measurement_file
+✔ skip target metadata_file
+✔ skip target lipid_measurements
+✔ skip target lipid_metadata
+• start target exploration
+• built target exploration [2.829 seconds]
+• end pipeline [2.922 seconds]
+```
+
+Note we could have put these bits in their own functions instead of keeping them in the document proper:
+  
+  * ICI-Kt correlations;
+  * Heatmap figure;
+  * PCA decomposition;
+  * PCA visualization
+  
+These are left as an exercise for the reader.
+
+### Differential Analysis
+
+Following EDA, we need to do the differential analysis.
+But for that, we need to do normalization and imputation of missing values first.
+Each one of those should be their own functions.
+[Here](https://github.com/rmflight/example_targets_workflow/blob/main/R/differential.R#L1) is the normalization function, [here](https://github.com/rmflight/example_targets_workflow/blob/main/R/differential.R#L26) is the imputation, and [here](https://github.com/rmflight/example_targets_workflow/blob/main/R/differential.R#L41) is the differential analysis function.
+
+And here is the output of running each step.
+
+```r
+# normalization
+> tar_make()
+✔ skip target measurement_file
+✔ skip target metadata_file
+✔ skip target lipid_measurements
+✔ skip target lipid_metadata
+• start target lipid_normalized
+New names:
+• `` -> `...1`
+• `` -> `...2`
+• `` -> `...3`
+• `` -> `...4`
+• `` -> `...5`
+• `` -> `...6`
+• `` -> `...7`
+• `` -> `...8`
+• `` -> `...9`
+• `` -> `...10`
+• `` -> `...11`
+• `` -> `...12`
+• built target lipid_normalized [0.449 seconds]
+✔ skip target exploration
+• end pipeline [0.562 seconds]
+```
+
+```r
+# imputing missing values
+> tar_make()
+✔ skip target measurement_file
+✔ skip target metadata_file
+✔ skip target lipid_measurements
+✔ skip target lipid_metadata
+✔ skip target lipid_normalized
+✔ skip target exploration
+• start target lipid_imputed
+• built target lipid_imputed [0.05 seconds]
+• end pipeline [0.169 seconds]
+```
+
+```r
+# differential analysis
+> tar_make()
+✔ skip target measurement_file
+✔ skip target metadata_file
+✔ skip target lipid_measurements
+✔ skip target lipid_metadata
+✔ skip target lipid_normalized
+✔ skip target exploration
+✔ skip target lipid_imputed
+• start target lipids_differential
+• built target lipids_differential [0.198 seconds]
+• end pipeline [0.312 seconds]
+```
+
+I **try** to build it up piecewise like this because it lets me easily load the previous target into the next function.
+Most of my functions will have `tar_load(previous_target)` at the top as a comment, or `varname = tar_read(previous_target)`, if I've got a more generic variable name I want to use that doesn't match the name of the target coming into the function.
+For example, here is the top of the normalization function.
+
+```r
+normalize_samples = function(lipid_measurements){
+  # do normalization in here and return the df
+  # tar_load(lipid_measurements)
+...
+```
+
+This strategy lets me easily load the variables I need in that function space and develop the actual code of the function.
+I will very often couple this with restarting the R session, `source("./packages.R")`, and if needed `lapply(...)` sourcing the R function files, and then load the necessary variables and start writing the code for the function.
+
+### Final Report
+
+Finally, we can put the differential results in our final report.
+So that they are together, we can make the EDA report a **child document** of the differential report, and include it as well.
+Let's actually make a copy, and include it as a child document.
+
+We add it to the plan as another target using the `tar_target` syntax, because as far as I know that is the only way to include something as a file dependency.
+If we want the **differential_report** target to get rerun when the *exploration* one is changed, this is the way to do it, have a target in the `tar_plan`, and then make sure to load the target in the *differential_report* itself.
+
+```r
+# on the command line / terminal / console
+>tflow::use_rmd("differential_report")
+✔ Writing 'doc/differential_report.Rmd'
+Add this target to your tar_plan():
+
+tar_render(differential_report2, "doc/differential_report.Rmd")
+```
+
+```r
+# in the _targets.R file
+# add the child target
+tar_target(exploration_child,
+             "doc/exploration_child.Rmd",
+             format = "file"),
+             
+# and then generate final report
+tar_render(differential_report, "doc/differential_report.Rmd")
+```
+
+In the rmarkdown:
+
+````markdown
+`r ''````{r eda child='doc/exploration_child.Rmd'}
+plot(cars)
+```
+````
+
+```r
+# run the differential report
+> tar_make()
+✔ skip target measurement_file
+✔ skip target metadata_file
+✔ skip target exploration_child
+✔ skip target lipid_measurements
+✔ skip target lipid_metadata
+✔ skip target lipid_normalized
+✔ skip target exploration
+✔ skip target lipid_imputed
+✔ skip target lipids_differential
+• start target differential_report
+• built target differential_report [3.018 seconds]
+• end pipeline [3.14 seconds]
+```
+
+
+## Notes About Rmarkdown and Quarto
+
+If you want to be able to interactively mess with your Rmarkdown / Quarto docs while under `{targets}`, then you need to change the setting **Chunk Output Inline** to **Chunk Output in Console**.
+
+If you want to run a full render of the document **outside** of the `{targets}` workflow, then you have to add an option to the **interactive** (shell, console) calls to `{rmarkdown}` and `{quarto}` to either use the `knit_root_dir` or `execute_dir` arguments, respectively.
+Both of those should be in the top level directory of the `{targets}` project, which most often at the console can be gotten by using `getwd()`, as shown in the examples below.
+
+```r
+# for rmarkdown
+rmarkdown::render("doc/document.Rmd", knit_root_dir = getwd())
+# for quarto
+quarto::quarto_render("doc/document.qmd", execute_dir = getwd())
+```
+
+There is also currently an issue with using `{gt}` tables in Quarto -> Word documents within `{targets}` workflows that as of 2022-09-27, is not quite resolved.
+
+*Edited 2022-11-30:* Added a couple of notes on the use of `{tflow}` and subsequently `tar_plan()`

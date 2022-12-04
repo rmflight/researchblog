@@ -1,0 +1,102 @@
+---
+title: "Package Version Increment Pre- and Post-Commit Hooks"
+date: 2014-02-07
+categories: [R, git, packages, development, programming, random-code-snippets]
+subtitle: |
+  Two git commit hooks for incrementing the package version as part of commits.
+---
+
+If you just want the hook scripts, check [this gist](https://gist.github.com/rmflight/8863882). If you want to know some of the motivation behind writing them, and about the internals, then read on.
+
+## Package Version Incrementing
+
+A good practice to get into is incrementing the minor version number (i.e. going from 0.0.1 to 0.0.2) after each `git` commit when developing packages (this is recommended by the [Bioconductor devs](http://bioconductor.org/developers/package-guidelines/#versions) as well ). This makes it very easy to know what changes are in your currently installed version, and if you remembered to actually install the most recent version for testing.
+
+If you are like me, this is a hard habit to get into, especially because I have to manually remember to go over to the `DESCRIPTION` file and up the version number when I make a commit. It seems I am not the only one according to this tweet from Kevin Ushey:
+
+<blockquote class="twitter-tweet" data-partner="tweetdeck"><p>Is there a git hook / alias that can auto-increment a package patch number (in DESCRIPTION) with each commit? <a href="https://twitter.com/search?q=%23rstats&amp;src=hash">#rstats</a> <a href="https://twitter.com/search?q=%23lazyweb&amp;src=hash">#lazyweb</a></p>&mdash; Kevin Ushey (@kevin_ushey) <a href="https://twitter.com/kevin_ushey/statuses/431504619668140032">February 6, 2014</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+I thought it sounded like a good idea, and got to work.
+
+## Git Hooks
+
+For those who don't know, `git` allows you to have custom scripts ([hooks](http://git-scm.com/book/en/Customizing-Git-Git-Hooks)) that are run at different steps in an overall `git` workflow. These are essentially executable scripts stored in the `.git/hooks/` folder of an individual repo.
+
+For our purposes, we would want something that runs either just before `commit` (pre-commit hook) or just after (post-commit hook), because we want to make modifications that are associated with `commit`s themselves. The pre-commit hook is most appropriate, because we can make file modifications before our actual commit. However, if the user is already using a validation pre-commit hook, or wants the version change separate, a post-commit hook might be better. Both are available in the [gist](https://gist.github.com/rmflight/8863882). 
+
+I suppose this could have been done using an `alias` to run a script, but the nice thing about commit hooks is they are tied to the action of committing itself, instead of as a separate action.
+
+## Rscript & read and write.dcf
+
+`R` already has some nice functionality for reading and writing the `debian control format` (dcf) DESCRIPTION files that are required at the root of an `R` package. So ideally we could write our script in `R` and not have to do parsing from the `bash` shell. [`Rscript`](http://stat.ethz.ch/R-manual/R-devel/library/utils/html/Rscript.html) lets us do this easily by defining in the shebang (#!) where to find the executable to run the script. 
+
+```
+#!/path/2/Rscript
+```
+
+
+The rest is simply reading the DESCRIPTION file (`read.dcf`), getting the current version, incrementing, writing a new DESCRIPTION file (`write.dcf`), and making the changes to the `git` commit.
+
+```{r, eval=FALSE}
+currDCF <- read.dcf("DESCRIPTION")
+currVersion <- currDCF[1,"Version"]
+splitVersion <- strsplit(currVersion, ".", fixed=TRUE)[[1]]
+nVer <- length(splitVersion)
+currEndVersion <- as.integer(splitVersion[nVer])
+newEndVersion <- as.character(currEndVersion + 1)
+splitVersion[nVer] <- newEndVersion
+newVersion <- paste(splitVersion, collapse=".")
+currDCF[1,"Version"] <- newVersion
+write.dcf(currDCF, "DESCRIPTION")
+```
+
+
+In order to add the new DESCRIPTION file (pre-commit), or do a subsequent commit, we do need a couple of system calls to `git` itself.
+
+```{r, eval=FALSE}
+system("git add DESCRIPTION")
+```
+
+We also need to check that there are files to actually be commited (for the pre-commit) before we go ahead and increment the version. The `git` diff command will tell us if there is anything or not.
+
+```{r, eval=FALSE}
+fileDiff <- system("git diff HEAD --name-only", intern=TRUE)
+```
+
+
+## Overriding Increment
+
+There is two wrinkles to this process. What if you don't want to increment the version of your package for a good reason, like you've just changed the major version number? Or, in the case of the post-commit, you don't want to end up in an infinite loop of incrementing.
+
+But you can't pass arguments from the `git` call to the script. It turns out we can prepend an environment variable definition, and then get it using `Sys.getenv`. So our script checks for the environment variable, and if it is defined, sets it. Otherwise it uses the default that is initialized at the beginning of the script.
+
+```{r, eval=FALSE}
+doIncrement <- TRUE # default
+ 
+# get the environment variable and modify if necessary
+tmpEnv <- as.logical(Sys.getenv("doIncrement"))
+if (!is.na(tmpEnv)){
+  doIncrement <- tmpEnv
+}
+```
+
+So to change the default value of `doIncrement`, you make your commit like this:
+
+```
+doIncrement=FALSE git commit -m "commit message"
+```
+
+This same behavior is used to keep from making an infinite number of increments in the post-commit script.
+
+## Installation
+
+To install the hooks, create the `pre-commit` or `post-commit` file in your `.git/hooks` directory, paste in the commands from the appropriate one in the [gist](https://gist.github.com/rmflight/8863882), save the file, and make it executable (`chmod` on 'nix systems). I have been able to use both of these on 'nix and Windows systems. Also don't forget to provide the path to your `Rscript` executable (either in the same directory as your `R` binary, or at /usr/bin/Rscript).
+
+Just in testing these scripts I have become surprised at the potential utility, and I hope you find them useful as well if you are developing `R` packages (which you should be if you are writing any analysis).
+
+If you have comments, suggestions, or improvements feel free to modify the gist, or leave a comment, contact me on [twitter](https://twitter.com/rmflight), or send me an email (check the About link above).
+
+## Caveats
+
+The script *assumes* the version separator is ".", and that you always are incrementing the last value. If you don't like it, feel free to change it.

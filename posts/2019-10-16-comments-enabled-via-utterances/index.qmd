@@ -1,0 +1,30 @@
+---
+title: "Comments enabled via utterances"
+date: '2019-10-16'
+categories: [blogdown, commenting, utterances]
+subtitle: |
+  How I got utterances working on blogdown.
+---
+
+## TL;DR
+
+[Utterances](https://utteranc.es/) is a lightweight commenting platform built
+on GitHub issues. So you have to have a GitHub account, but I expect most people
+who comment on this blog already have one.
+
+## Why Utterances
+
+When I switched to [blogdown](https://bookdown.org/yihui/blogdown/), I lost
+my disqus comments. I had considered migrating them over, but never got around
+to it. I also thought that there had to be a way to link GitHub issues to
+blog posts, but didn't investigate it much.
+
+Then, I came across [Maëlle's blog post](https://masalmon.eu/2019/10/02/disqus/) about switching to [utterances](https://uteranc.es)
+and I was sold. I had some free time last night, and dived into how to add it
+to my site that uses the hugo academic theme.
+
+I'm not expecting a lot of heavy commenting, but at least it's now available!
+
+## How
+
+For blogdown, just replace everything in *layouts/partials/comments.html* with the code snippet from utterances.

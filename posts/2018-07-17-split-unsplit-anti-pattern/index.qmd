@@ -1,0 +1,118 @@
+---
+title: "Split - Unsplit Anti-Pattern"
+date: '2018-07-17'
+categories: [R, development, programming, purrr, dplyr, join] 
+subtitle: |
+  Getting some speed using dplyr::join than my more intuitive split --> unsplit pattern.
+---
+
+## TL;DR
+
+If you notice yourself using `split` -> `unsplit` / `rbind` on two object to
+match items up, maybe you should be using `dplyr::join_` instead. Read below
+for concrete examples.
+
+## Motivation
+
+I have had a lot of calculations lately that involve some sort of `normalization`
+or scaling a group of related values, each group by a different factor.
+
+Lets setup an example where we will have `1e5` values in `10` groups, each group
+of values being `normalized` by their own value.
+
+```{r generate_test_data}
+library(microbenchmark)
+library(profvis)
+set.seed(1234)
+n_point <- 1e5
+to_normalize <- data.frame(value = rnorm(n_point), group = sample(seq_len(10), n_point, replace = TRUE))
+
+normalization <- data.frame(group = seq_len(10), normalization = rnorm(10))
+```
+
+For each `group` in `to_normalize`, we want to apply the normalization factor in
+`normalization`. In this case, I'm going to do a simple subtraction.
+
+
+## Match Them!
+
+My initial implementation was to iterate over the groups, and use `%in%` to
+`match` each `group` from the normalization factors and the data to be normalized,
+and modify in place. **Don't do this!!** It was
+the slowest method I've used in my real package code!
+
+```{r match_method}
+match_normalization <- function(normalize_data, normalization_factors){
+  use_groups <- normalization_factors$group
+  
+  for (igroup in use_groups) {
+    normalize_data[normalize_data$group %in% igroup, "value"] <- 
+      normalize_data[normalize_data$group %in% igroup, "value"] - normalization_factors[normalization_factors$group %in% igroup, "normalization"]
+  }
+  normalize_data
+}
+```
+
+```{r time_match, results='asis'}
+micro_results <- summary(microbenchmark(match_normalization(to_normalize, normalization)))
+knitr::kable(micro_results)
+```
+
+Not bad for the test data. But can we do better?
+
+## Split Them!
+
+My next thought was to split them by their `group`s, and then iterate again over
+the groups using `purrr::map`, and then unlist them.
+
+```{r split_method}
+split_normalization <- function(normalize_data, normalization_factors){
+  split_norm <- split(normalization_factors$normalization, normalization_factors$group)
+  
+  split_data <- split(normalize_data, normalize_data$group)
+  
+  out_data <- purrr::map2(split_data, split_norm, function(.x, .y){
+    .x$value <- .x$value - .y
+    .x
+  })
+  do.call(rbind, out_data)
+}
+```
+
+```{r time_split, results = 'asis'}
+micro_results2 <- summary(microbenchmark(match_normalization(to_normalize, normalization),
+               split_normalization(to_normalize, normalization)))
+knitr::kable(micro_results2)
+```
+
+## Join Them!
+
+My final thought was to join the two data.frame's together using `dplyr`, and then
+they are automatically matched up.
+
+```{r dplyr_joint}
+join_normalization <- function(normalize_data, normalization_factors){
+  normalize_data <- dplyr::right_join(normalize_data, normalization_factors,
+                                      by = "group")
+  
+  normalize_data$value <- normalize_data$value - normalize_data$normalization
+  normalize_data[, c("value", "group")]
+}
+```
+
+```{r time_join, results = 'asis'}
+micro_results3 <- summary(microbenchmark(match_normalization(to_normalize, normalization),
+               split_normalization(to_normalize, normalization),
+               join_normalization(to_normalize, normalization)))
+knitr::kable(micro_results3)
+```
+
+## Conclusions
+
+So on my computer, the `split` and `match` implementations are mostly comparable,
+although on my motivating real world example, I actually got a 3X speedup by
+using the `split` method. That may be because of issues related to `DataFrame`
+and matching elements within that structure. The `join` method is 10-14X faster
+than the others, which is what I've seen in my motivating work. I also think
+it makes the code easier to read and reason over, because you can see what
+is being subtracted from what directly in the code.

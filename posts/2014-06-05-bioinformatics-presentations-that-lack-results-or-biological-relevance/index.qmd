@@ -1,0 +1,21 @@
+---
+title: "Bioinformatics Presentations that Lack Results (or Biological Relevance)"
+date: 2014-06-05
+categories: [bioinformatics, academia, research]
+subtitle: |
+  Why do people have bionformatics presentations lacking relevance or results?
+---
+
+## TL;DR
+
+In bioinformatics research we need to show validated results (if doing classification or discovery of new things), or show biological relevance. If you do neither of those things in a paper or presentation, then I'm not going to believe your method is worth anything.
+
+## Seminar Without Results
+
+I attended a seminar yesterday (I'm not going to comment on who gave the seminar or what it was about, so please don't ask) where the presenter had a distinct lack of any useful results. Their presentation consisted almost entirely of methods description, with various discussions of why they did what they did, with the only result being:
+
+**We found X number of known things, and predicted Y number of novel things**
+
+Just to clarify, they had a methodology that generated classifiers based on features from known items to find novel items, and then associate both known and novel with biological conditions (e.g. disease vs non-disease). 
+
+In all of the slides shown, there was no discussion of whether the features in the classifier were relevant, how well the classifier worked when splitting the known stuff into *training* / *test* data sets, and whether anything discovered (both of the known and unknown) had any biological relevance or had been validated by wet-lab collaborators. This is the worst kind of bioinformatics communication, because the audience had no idea in the end if **the method was actually useful or generated biologically relevant results**. This is really the point of bioinformatics and more broadly systems biology research, is making something that helps us decipher biological systems, even in some small way. If you don't have any data on either the accuracy of classification (in this case finding novel things that were unknown) or the biological relevance of things found to be different, not even one data point, then you should not be giving the talk or writing the paper. Period.

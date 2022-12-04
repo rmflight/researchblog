@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.2.269">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Robert M Flight">
+<meta name="dcterms.date" content="2014-04-08">
+
+<title>Deciphering Life: One Bit at a Time - categoryCompare Paper Finally Out!</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1.6em;
+  vertical-align: middle;
+}
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+}
+.hanging div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-dark.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-dark.min.css" rel="stylesheet" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
+<link href="../../site_libs/quarto-contrib/academicons-1.9.2/all.css" rel="stylesheet">
+<link href="../../site_libs/quarto-contrib/academicons-1.9.2/size.css" rel="stylesheet">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="../../styles.css">
+</head>
+
+<body class="floating nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="../../index.html">
+    <span class="navbar-title">Deciphering Life: One Bit at a Time</span>
+    </a>
+  </div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../../about.html">
+ <span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/rmflight"><i class="bi bi-github" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://orcid.org/0000-0001-8141-7788">
+ <span class="menu-text"><i class="ai  ai-orcid" title="" style="color:"></i></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://mastodon.social/@rmflight"><i class="bi bi-mastodon" role="img">
+</i> 
+ <span class="menu-text"></span></a>
+  </li>  
+</ul>
+              <div class="quarto-toggle-container">
+                  <a href="" class="quarto-color-scheme-toggle nav-link" onclick="window.quartoToggleColorScheme(); return false;" title="Toggle dark mode"><i class="bi"></i></a>
+              </div>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">categoryCompare Paper Finally Out!</h1>
+            <p class="subtitle lead"></p><p>My first first author publication since starting my PostDoc is finally out, about my meta-annotation-enrichment software package categoyrCompare.</p><p></p>
+                                <div class="quarto-categories">
+                <div class="quarto-category">R</div>
+                <div class="quarto-category">bioconductor</div>
+                <div class="quarto-category">meta-analysis</div>
+                <div class="quarto-category">publications</div>
+                <div class="quarto-category">git</div>
+                <div class="quarto-category">github</div>
+                <div class="quarto-category">open-science</div>
+                <div class="quarto-category">visualization</div>
+                <div class="quarto-category">annotation-enrichment</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Robert M Flight <a href="https://orcid.org/0000-0001-8141-7788" class="quarto-title-author-orcid"> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAA2ZpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYwIDYxLjEzNDc3NywgMjAxMC8wMi8xMi0xNzozMjowMCAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wTU09Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9tbS8iIHhtbG5zOnN0UmVmPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvc1R5cGUvUmVzb3VyY2VSZWYjIiB4bWxuczp4bXA9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC8iIHhtcE1NOk9yaWdpbmFsRG9jdW1lbnRJRD0ieG1wLmRpZDo1N0NEMjA4MDI1MjA2ODExOTk0QzkzNTEzRjZEQTg1NyIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDozM0NDOEJGNEZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDozM0NDOEJGM0ZGNTcxMUUxODdBOEVCODg2RjdCQ0QwOSIgeG1wOkNyZWF0b3JUb29sPSJBZG9iZSBQaG90b3Nob3AgQ1M1IE1hY2ludG9zaCI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOkZDN0YxMTc0MDcyMDY4MTE5NUZFRDc5MUM2MUUwNEREIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjU3Q0QyMDgwMjUyMDY4MTE5OTRDOTM1MTNGNkRBODU3Ii8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+84NovQAAAR1JREFUeNpiZEADy85ZJgCpeCB2QJM6AMQLo4yOL0AWZETSqACk1gOxAQN+cAGIA4EGPQBxmJA0nwdpjjQ8xqArmczw5tMHXAaALDgP1QMxAGqzAAPxQACqh4ER6uf5MBlkm0X4EGayMfMw/Pr7Bd2gRBZogMFBrv01hisv5jLsv9nLAPIOMnjy8RDDyYctyAbFM2EJbRQw+aAWw/LzVgx7b+cwCHKqMhjJFCBLOzAR6+lXX84xnHjYyqAo5IUizkRCwIENQQckGSDGY4TVgAPEaraQr2a4/24bSuoExcJCfAEJihXkWDj3ZAKy9EJGaEo8T0QSxkjSwORsCAuDQCD+QILmD1A9kECEZgxDaEZhICIzGcIyEyOl2RkgwAAhkmC+eAm0TAAAAABJRU5ErkJggg=="></a></p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 8, 2014</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#tldr" id="toc-tldr" class="nav-link active" data-scroll-target="#tldr">TL;DR</a></li>
+  <li><a href="#inspiration" id="toc-inspiration" class="nav-link" data-scroll-target="#inspiration">Inspiration</a></li>
+  <li><a href="#v-0.0000001" id="toc-v-0.0000001" class="nav-link" data-scroll-target="#v-0.0000001">V 0.0000001</a></li>
+  <li><a href="#categorycompare-method-summary" id="toc-categorycompare-method-summary" class="nav-link" data-scroll-target="#categorycompare-method-summary">categoryCompare Method – Summary</a></li>
+  <li><a href="#others" id="toc-others" class="nav-link" data-scroll-target="#others">Others</a></li>
+  <li><a href="#bioconductor-package" id="toc-bioconductor-package" class="nav-link" data-scroll-target="#bioconductor-package">Bioconductor Package</a>
+  <ul class="collapse">
+  <li><a href="#graphviz-to-rcytoscape" id="toc-graphviz-to-rcytoscape" class="nav-link" data-scroll-target="#graphviz-to-rcytoscape">Graphviz to RCytoscape</a></li>
+  </ul></li>
+  <li><a href="#first-publication-attempt" id="toc-first-publication-attempt" class="nav-link" data-scroll-target="#first-publication-attempt">First Publication Attempt</a></li>
+  <li><a href="#second-publication-attempt" id="toc-second-publication-attempt" class="nav-link" data-scroll-target="#second-publication-attempt">Second Publication Attempt</a>
+  <ul class="collapse">
+  <li><a href="#frontiers-interactive-review" id="toc-frontiers-interactive-review" class="nav-link" data-scroll-target="#frontiers-interactive-review">Frontiers Interactive Review</a></li>
+  </ul></li>
+  <li><a href="#github-package-of-supplementary-materials" id="toc-github-package-of-supplementary-materials" class="nav-link" data-scroll-target="#github-package-of-supplementary-materials">Github package of supplementary materials</a>
+  <ul class="collapse">
+  <li><a href="#publication-specific-branch" id="toc-publication-specific-branch" class="nav-link" data-scroll-target="#publication-specific-branch">Publication specific branch</a></li>
+  </ul></li>
+  <li><a href="#to-do" id="toc-to-do" class="nav-link" data-scroll-target="#to-do">To Do</a></li>
+  <li><a href="#side-effects" id="toc-side-effects" class="nav-link" data-scroll-target="#side-effects">Side Effects</a></li>
+  <li><a href="#what-would-i-do-differently" id="toc-what-would-i-do-differently" class="nav-link" data-scroll-target="#what-would-i-do-differently">What Would I Do Differently?</a></li>
+  </ul>
+</nav>
+</nav>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+<p>I can finally say that the publication on my <code>Bioconductor</code> package <code>categoryCompare</code> is finally published in the <strong>Bioinformatics and Computational Biology</strong> section of <strong>Frontiers in Genetics</strong> <span class="citation" data-cites="CCPAPER">(<a href="#ref-CCPAPER" role="doc-biblioref">Flight et al. 2014</a>)</span>. This has been a long time coming, and I wanted to give some background on the inspiration and development of the method and software.</p>
+<section id="tldr" class="level2">
+<h2 class="anchored" data-anchor-id="tldr">TL;DR</h2>
+<p>The software package has been in development in one form or another since 2010, released to <code>Bioconductor</code> in summer 2012, and the publication has bounced around and been revised since spring of 2013, and it is finally available to you. All of the supplementary data and methods are available as an <code>R</code> package on <a href="https://github.com/rmflight/ccPaper">github</a>. Version control using <code>git</code> was instrumental in getting this work out in a timely manner. There is still a bunch of work to do on the package.</p>
+<p>If I did it again, I would: * Write the manuscript using <code>R</code> markdown, as a vignette in a package * Ask to be able to make reviewer points issues on Github * Submit a preprint with submission</p>
+</section>
+<section id="inspiration" class="level2">
+<h2 class="anchored" data-anchor-id="inspiration">Inspiration</h2>
+<p>In spring of 2010 I started as a PostDoc with <a href="http://bioinformatics.louisville.edu/lab/index.php">Eric Rouchka</a>. One of his collaborators, <a href="http://louisville.edu/kscirc/bios/jeffrey-petruska-ph-d.html">Jeff Petruska</a> is interested in the process of <a href="http://www.ncbi.nlm.nih.gov/pubmed/16629616">collateral sprouting of neurons</a>, especially as it compares to regeneration. Early in my PostDoc, Jeff wanted to do a gene-level comparison of his microarray data of collateral sprouting in skin compared to previously published studies with muscle.</p>
+<p>Combing through the literature produced a number of genes differentially expressed in denervated muscle. However, when comparing with the genes resulting from the skin data, there was almost nothing in common and nothing that made sense from a functional standpoint. Skimming around the <code>Bioconductor</code> literature in <a href="http://bioconductor.org/packages/release/bioc/vignettes/GOstats/inst/doc/GOvis.pdf"><code>GOStats</code></a>, I was struck by Robert Gentleman’s example of coloring Gene Ontology nodes by which data set they originated from. This is a very simple meta-analysis and visualization. When I tried it with the skin - muscle comparison, I got some very interesting (i.e.&nbsp;the Petruska group thought the results were very interpretable) results.</p>
+<p><strong>Note:</strong> At this point, because of the data sources (gene lists from publications with little to no original data), I was using the hypergeometric enrichment test in <code>Category</code> to determine significant GO terms from the two tissues.</p>
+</section>
+<section id="v-0.0000001" class="level2">
+<h2 class="anchored" data-anchor-id="v-0.0000001">V 0.0000001</h2>
+<p>I started developing this idea into a simple package (i.e.&nbsp;collection of <code>R</code> scripts), that was able to do at least GO term enrichment, and that could be hosted on our group webserver to enable others to make use of it. Visualization and interrogation used the <code>imageMaps</code> function in Robert Gentleman’s original demonstration, however any number of data sets could now be compared.</p>
+</section>
+<section id="categorycompare-method-summary" class="level2">
+<h2 class="anchored" data-anchor-id="categorycompare-method-summary">categoryCompare Method – Summary</h2>
+<p>The basic method is to take gene (or really any annotated feature) lists from multiple experiments, and perform annotation (Gene Ontology Terms, KEGG Pathways, etc) enrichment (either hypergeometric or GSEA type) on each gene list, determine significant annotations from each list, and then examine which annotations come from which list.</p>
+<p>Because this results in a lot of data to parse through, exploration of the results is facilitated by considering the annotations as a network of annotations related by the number of shared genes between them, and interacting with the networks in <a href="http://www.cytoscape.org/">Cytoscape</a>.</p>
+<p>If you want to know more, check out the paper <span class="citation" data-cites="CCPAPER">(<a href="#ref-CCPAPER" role="doc-biblioref">Flight et al. 2014</a>)</span>, or the <a href="http://bioconductor.org/packages/release/bioc/vignettes/categoryCompare/inst/doc/categoryCompare_vignette.pdf">vignette</a> in the <code>Bioconductor</code> package.</p>
+</section>
+<section id="others" class="level2">
+<h2 class="anchored" data-anchor-id="others">Others</h2>
+<p>As I developed this idea, I also started looking into other possible software implementations.</p>
+<ul>
+<li><p>Shen &amp; Tseng had recently published similar work in MAPE-I, but at my level of understanding it required the same identifiers. In retrospect, I should have read the paper better. However, they also did not have a released implementation with their publication.</p></li>
+<li><p><a href="http://conceptgen.ncibi.org/core/conceptGen/index.jsp">ConceptGen</a> is another interesting application, that allows very similar analyses to <code>categoryCompare</code>, except that it is not possible to explore how the concepts map between multiple user supplied data sets. The only way one can relate multiple data sets is if the data sets map as a concept to another, but one cannot visualize the interrelated concepts between user supplied data sets.</p></li>
+<li><p>Enrichment Map was another alternative, but did all of comparison mathematics in Cytoscape itself, based on enrichments calculated outside of Cytoscape. The publication does give an example of a similar type of analysis as performed by <code>categoryCompare</code>. However, I wanted everything, from enrichment calculation to visualization controlled by <code>R</code>. I did use their method of weighting the edges between annotations, however, ditching the GO directed acyclic graph (DAG) view I used initially.</p></li>
+</ul>
+</section>
+<section id="bioconductor-package" class="level2">
+<h2 class="anchored" data-anchor-id="bioconductor-package">Bioconductor Package</h2>
+<p>About this time I realized that I wanted the package to fit into the <a href="http://bioconductor.org"><code>Bioconductor</code></a> ecosystem. This required a complete redesign and rewrite of the code, as I moved to actually used some sort of OOP model (S4 in this case), and creating an actual package.</p>
+<p>The package was released to the wild in the fall of 2012, as part of <code>Bioconductor</code> v 2.10. Of course, this was the last <code>Bioconductor</code> release based on R 2.15, which brought some particular challenges in <code>namespaces</code> with the switch in R 3.0.0 the next year.</p>
+<section id="graphviz-to-rcytoscape" class="level3">
+<h3 class="anchored" data-anchor-id="graphviz-to-rcytoscape">Graphviz to RCytoscape</h3>
+<p>The original code used the <code>graphviz</code> package to do layouts for visualization, but it was difficult to install, and did not work the way I wanted. Thankfully Paul Shannon had just developed the <code>RCytoscape</code> package the year previous, and this enabled truly interactive visualization and passing data back and forth between <code>R</code> and <code>Cytoscape</code>.</p>
+<p>My use of <code>RCytoscape</code> has actually lead to finding improvements in the package, and better use of it. I am also hoping to make much more use of <code>RCytoscape</code> and the <code>igraph</code> package and combining them in novel ways.</p>
+</section>
+</section>
+<section id="first-publication-attempt" class="level2">
+<h2 class="anchored" data-anchor-id="first-publication-attempt">First Publication Attempt</h2>
+<p>Our first attempt at publication focussed on the original data that inspired the method, and comparing it with gene-gene comparisons directly. We submitted to <strong>BMC Bioinformatics</strong>, and the reviews were not favorable, and took forever to get back. We actually wondered if the reviewers had read the paper that we submitted. We gave up on this venue. BTW, our last <strong>three</strong> publications have been submitted there, and the publication process has gotten worse and worse with every submission there. I don’t think our papers are getting worse over the years. I don’t know if we will bother submitting to <strong>BMC Bioinformatics</strong> again.</p>
+</section>
+<section id="second-publication-attempt" class="level2">
+<h2 class="anchored" data-anchor-id="second-publication-attempt">Second Publication Attempt</h2>
+<p>The second attempt was submitting to the current home in the <strong>Bioinformatics and Computational Biology</strong> section of <strong>Frontiers in Genetics</strong>. This time, although the reviews were harsh (i.e.&nbsp;they were not immediately favorable), they were <em>fair</em>, and actually contained <strong>useful</strong> critique, and pointed to a way forward.</p>
+<p>Unfortunately for me, revising the manuscript to address the reviewers criticisms meant a lot of work to construct theoretical examples, as well as a lot of thought in order to pare the manuscript down to make sure our primary message was clearly communicated.</p>
+<section id="frontiers-interactive-review" class="level3">
+<h3 class="anchored" data-anchor-id="frontiers-interactive-review">Frontiers Interactive Review</h3>
+<p>I would like to note that the Frontiers interactive review system, with the ability to discuss individual points with the reviewers (still anonymously) really helped make it possible to determine which points were make or break, and discuss different ways to approach things. This was the best review experience I have ever had, and a large part of that I think was due to being able to interact with the reviewers directly, and not just through letters mediated by the editor.</p>
+<p>I think it would be nice if Frontiers had an option for making the review history available if the authors and reviewers were agreeable to it.</p>
+</section>
+</section>
+<section id="github-package-of-supplementary-materials" class="level2">
+<h2 class="anchored" data-anchor-id="github-package-of-supplementary-materials">Github package of supplementary materials</h2>
+<p>In the initial publication, I had included the set of scripts used for analysis, data files, results, etc. However, the amount of work required in the rewrite was so substantial, that I created an <a href="https://github.com/rmflight/ccPaper"><code>R</code> package specifically</a> for the analyses that went into the paper, with separate <code>R</code> markdown vignettes for each result type (hypothetical, two different experimental comparisons). This package has documents on how raw data was processed, as well as the semi-processed experimental data.</p>
+<section id="publication-specific-branch" class="level3">
+<h3 class="anchored" data-anchor-id="publication-specific-branch">Publication specific branch</h3>
+<p>Due to specific changes to the <code>categoryCompare</code> software needed to address the reviewer comments, a publication specific branch of the development version was created (<a href="https://github.com/rmflight/categoryCompare/tree/paper">paper</a>). This allowed me to quickly introduce code and features that the reviewers had asked for, without worrying about breaking the current development version that will be released in Bioconductor shortly.</p>
+</section>
+</section>
+<section id="to-do" class="level2">
+<h2 class="anchored" data-anchor-id="to-do">To Do</h2>
+<p>As with most software projects, there is still plenty to be done.</p>
+<ul>
+<li><p>Incorporate new functionality from <code>paper</code> branch into <code>dev</code></p>
+<ul>
+<li>Specifically ability to do <code>GSEA</code> built in (probably using <code>limma</code>’s <code>romer</code> and <code>roast</code> functions), and new visualization options</li>
+</ul></li>
+<li><p>Change from <code>latex</code> vignette to <code>R</code> markdown (this is technically done, but hasn’t made it into the dev branch)</p></li>
+<li><p>Switch to <code>roxygen2</code> documentation (will be interesting due to use of S4 objects and methods)</p></li>
+<li><p>Implement proper testing using <code>testthat</code></p></li>
+<li><p>Refactor a lot of code to improve speed, use <code>R</code> conventions</p>
+<ul>
+<li>I was still a relatively <code>R</code> newbie when I wrote the package, and as I looked at the code while making changes for the reviewers, I noticed some places where I had done some silly things, mainly because I didn’t know better when I did it.</li>
+</ul></li>
+<li><p>Consider splitting visualization into its own package</p>
+<ul>
+<li>Although I developed the visualization specifically for <code>categoryCompare</code>, I think it is generic enough that others might benefit from having it available separately. Therefore I need to think about separating it out, and how best to go about it without making it hard for <code>categoryCompare</code> to keep working as it already does.</li>
+</ul></li>
+<li><p>Make it easy to investigate the actual genes with particularly interesting annotations, and how they are linked together by annotations or other data sources, as well as their original expression levels in the experiments.</p></li>
+</ul>
+</section>
+<section id="side-effects" class="level2">
+<h2 class="anchored" data-anchor-id="side-effects">Side Effects</h2>
+<p>A nice side effect of the package is that any annotation enrichment I do now, I almost always do it in the framework of <code>categoryCompare</code>, just because it is a lot easier to make sense of using the visualization capabilities and coupling with <code>Cytoscape</code>.</p>
+</section>
+<section id="what-would-i-do-differently" class="level2">
+<h2 class="anchored" data-anchor-id="what-would-i-do-differently">What Would I Do Differently?</h2>
+<p>Keeping in mind that I started this work almost 4 years ago, when I still didn’t know any <code>R</code>, and had yet to be exposed to the reproducibility and open science movements, or <code>knitr</code>, or <code>pandoc</code>, here are some things that if I started today I would do differently (you can probably guess some of these from above):</p>
+<ul>
+<li><p>Put the package under version control immediately! Thankfully I didn’t have any moments early in the process when things were not in a <code>git</code> repo, but I am very thankful later on I was able to do <code>diff</code> and <code>branch</code> on my code to figure out where things broke and introduce new features.</p></li>
+<li><p>Start thinking of the analysis as a standalone package from the very beginning, instead of a directory of data and scripts. This is what I do now (blogpost to come), and it makes it much easier if I come up with novel methods to spin them off into a fully fledged <code>R</code> / <code>Bioconductor</code> package</p></li>
+<li><p>Don’t underestimate the novelty of something as simple as visualization, and how much it may make or break your method. We ended up adding a good chunk of text to the manuscript on the visualization because we realized how important it was, but only after the reviewers pointed it out to us.</p></li>
+<li><p>Write the paper as a vignette of the ccPaper package itself, and generate Word documents for collaborators who insist on Word docs using Pandoc</p></li>
+<li><p>Start a github repo for the paper, and ask collaborators to try and work on it there</p></li>
+<li><p>Submit a preprint when submitted, so that we start getting feedback on the manuscript early</p></li>
+<li><p>Ask for permission to set up reviewer comments as issues on the github repo to easily track how well we are addressing them.</p>
+<ul>
+<li>Wouldn’t it be cool in a totally open peer review journal to actually do all of the peer review on a service like Github, and have reviewers leave issues, tag them, and comment directly on the text of the publication using the commenting feature of commenting on commits?</li>
+</ul></li>
+</ul>
+
+
+
+</section>
+
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography"><h2 class="anchored quarto-appendix-heading">References</h2><div id="refs" class="references csl-bib-body hanging-indent" role="doc-bibliography">
+<div id="ref-CCPAPER" class="csl-entry" role="doc-biblioentry">
+Flight, Robert M., Benjamin J. Harrison, Fahim Mohammad, Mary B. Bunge, Lawrence D. F. Moon, Jeffrey C. Petruska, and Eric C. Rouchka. 2014. <span>“categoryCompare, an Analytical Tool Based on Feature Annotations.”</span> <em>Frontiers in Genetics</em>. <a href="https://doi.org/10.3389/fgene.2014.00098">https://doi.org/10.3389/fgene.2014.00098</a>.
+</div>
+</div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Reuse</h2><div quarto-reuse="quarto-reuse" class="quarto-appendix-contents"><a rel="license" href="https://creativecommons.org/licenses/by/4.0/">https://creativecommons.org/licenses/by/4.0/</a></div></section><section class="quarto-appendix-contents"><h2 class="anchored quarto-appendix-heading">Citation</h2><div><div class="quarto-appendix-secondary-label">BibTeX citation:</div><pre class="sourceCode code-with-copy quarto-appendix-bibtex"><code class="sourceCode bibtex">@online{mflight2014,
+  author = {Robert M Flight},
+  title = {categoryCompare {Paper} {Finally} {Out!}},
+  date = {2014-04-08},
+  url = {https://rmflight.github.io/posts/2014-04-08-categorycompare-paper-finally-out},
+  langid = {en}
+}
+</code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre><div class="quarto-appendix-secondary-label">For attribution, please cite this work as:</div><div id="ref-mflight2014" class="csl-entry quarto-appendix-citeas" role="doc-biblioentry">
+Robert M Flight. 2014. <span>“categoryCompare Paper Finally Out!”</span>
+April 8, 2014. <a href="https://rmflight.github.io/posts/2014-04-08-categorycompare-paper-finally-out">https://rmflight.github.io/posts/2014-04-08-categorycompare-paper-finally-out</a>.
+</div></div></section></div></main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const disableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'prefetch';
+    }
+  }
+  const enableStylesheet = (stylesheets) => {
+    for (let i=0; i < stylesheets.length; i++) {
+      const stylesheet = stylesheets[i];
+      stylesheet.rel = 'stylesheet';
+    }
+  }
+  const manageTransitions = (selector, allowTransitions) => {
+    const els = window.document.querySelectorAll(selector);
+    for (let i=0; i < els.length; i++) {
+      const el = els[i];
+      if (allowTransitions) {
+        el.classList.remove('notransition');
+      } else {
+        el.classList.add('notransition');
+      }
+    }
+  }
+  const toggleColorMode = (alternate) => {
+    // Switch the stylesheets
+    const alternateStylesheets = window.document.querySelectorAll('link.quarto-color-scheme.quarto-color-alternate');
+    manageTransitions('#quarto-margin-sidebar .nav-link', false);
+    if (alternate) {
+      enableStylesheet(alternateStylesheets);
+      for (const sheetNode of alternateStylesheets) {
+        if (sheetNode.id === "quarto-bootstrap") {
+          toggleBodyColorMode(sheetNode);
+        }
+      }
+    } else {
+      disableStylesheet(alternateStylesheets);
+      toggleBodyColorPrimary();
+    }
+    manageTransitions('#quarto-margin-sidebar .nav-link', true);
+    // Switch the toggles
+    const toggles = window.document.querySelectorAll('.quarto-color-scheme-toggle');
+    for (let i=0; i < toggles.length; i++) {
+      const toggle = toggles[i];
+      if (toggle) {
+        if (alternate) {
+          toggle.classList.add("alternate");     
+        } else {
+          toggle.classList.remove("alternate");
+        }
+      }
+    }
+    // Hack to workaround the fact that safari doesn't
+    // properly recolor the scrollbar when toggling (#1455)
+    if (navigator.userAgent.indexOf('Safari') > 0 && navigator.userAgent.indexOf('Chrome') == -1) {
+      manageTransitions("body", false);
+      window.scrollTo(0, 1);
+      setTimeout(() => {
+        window.scrollTo(0, 0);
+        manageTransitions("body", true);
+      }, 40);  
+    }
+  }
+  const isFileUrl = () => { 
+    return window.location.protocol === 'file:';
+  }
+  const hasAlternateSentinel = () => {  
+    let styleSentinel = getColorSchemeSentinel();
+    if (styleSentinel !== null) {
+      return styleSentinel === "alternate";
+    } else {
+      return false;
+    }
+  }
+  const setStyleSentinel = (alternate) => {
+    const value = alternate ? "alternate" : "default";
+    if (!isFileUrl()) {
+      window.localStorage.setItem("quarto-color-scheme", value);
+    } else {
+      localAlternateSentinel = value;
+    }
+  }
+  const getColorSchemeSentinel = () => {
+    if (!isFileUrl()) {
+      const storageValue = window.localStorage.getItem("quarto-color-scheme");
+      return storageValue != null ? storageValue : localAlternateSentinel;
+    } else {
+      return localAlternateSentinel;
+    }
+  }
+  let localAlternateSentinel = 'alternate';
+  // Dark / light mode switch
+  window.quartoToggleColorScheme = () => {
+    // Read the current dark / light value 
+    let toAlternate = !hasAlternateSentinel();
+    toggleColorMode(toAlternate);
+    setStyleSentinel(toAlternate);
+  };
+  // Ensure there is a toggle, if there isn't float one in the top right
+  if (window.document.querySelector('.quarto-color-scheme-toggle') === null) {
+    const a = window.document.createElement('a');
+    a.classList.add('top-right');
+    a.classList.add('quarto-color-scheme-toggle');
+    a.href = "";
+    a.onclick = function() { try { window.quartoToggleColorScheme(); } catch {} return false; };
+    const i = window.document.createElement("i");
+    i.classList.add('bi');
+    a.appendChild(i);
+    window.document.body.appendChild(a);
+  }
+  // Switch to dark mode if need be
+  if (hasAlternateSentinel()) {
+    toggleColorMode(true);
+  } else {
+    toggleColorMode(false);
+  }
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>

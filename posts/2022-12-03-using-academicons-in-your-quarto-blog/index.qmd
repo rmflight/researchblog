@@ -1,0 +1,57 @@
+---
+title: "Using Academicons in Your Quarto Blog"
+subtitle: |
+  If you have trouble getting the academicons in your quarto blog, this might help you too!
+date: 2022-12-03
+categories: [random-code-snippets, quarto]
+editor_options: 
+       chunk_output_type: console
+bibliography: refs.bib
+---
+
+## TL;DR
+
+Install the academicons extension in your Quarto project, and then use the "text" option.
+
+## Academicons??
+
+[Academicons](https://jpswalsh.github.io/academicons/) are an awesome set of academic project themed icons in the same spirit as the [Font-Awesome](https://github.com/FortAwesome/Font-Awesome) icon collection.
+In particular, they include a variety of icons related to various academic projects and software.
+The one I really wanted access to, was the ORCID icon, {{< ai orcid >}}.
+
+## Using in Quarto
+
+You can download the academicons for use in Latex, HTML, and also in Quarto projects.
+
+For quarto in particular, you need to **install the extension in the particular project!**
+
+::: {.column-margin}
+I was using the instructions on the academicons site, and didn't see that I needed to `cd` into my blog directory first to have the extension installed into the project.
+I do appreciate that the default for quarto is on a project basis.
+:::
+
+```
+cd myblog
+quarto install extension schochastics/academicons
+```
+
+Then including any of the academicons in your document is easily accomplished using the short codes, like we can include the ORCID icon {{< ai orcid >}} using:
+
+``` md
+{{< source icon >}}
+```
+
+where `source = ai` and `icon = orcid` or whatever other icon you want to use.
+
+## Including the Icon in Navbar
+
+It's often nice to include various icons in the navigation bar (navbar) or footer of your site.
+If you want to use it in the navbar, you will have to use
+
+``` yaml
+# this would be an item under the navbar
+  - text: "{{< source icon >}}"
+    href: link
+```
+
+I hope this helps someone else!

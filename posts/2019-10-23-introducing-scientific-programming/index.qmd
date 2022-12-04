@@ -1,0 +1,75 @@
+---
+title: "Introducing Scientific Programming"
+date: '2019-10-23'
+categories: [R, reproducibility, programming, academia]
+subtitle: |
+  How and when should we get people in academia programming? What if we had a unified front across the science labs?
+---
+
+## TL;DR
+
+We should get science undergraduate students programming by introducing R & Python in **all** first year science labs, and continuing throughout the undergraduate classes.
+
+## Why?
+
+I've previously encountered ideas around getting **graduate** students to get programming, because to do the analyses that modern science requires you need to be able to at least do some basic scripting, either in a language like Python or R or on the command line.
+As successful as programs like Software Carpentry are for getting graduate students and others further along their scientific career into a programming and command line mindset, I think it needs to be a lot earlier, and introduced in a way that it becomes second nature. 
+Ergo, undergraduate science labs.
+
+## Undergraduate Science Labs
+
+Based on my recollection of undergraduate labs and later being a chemistry lab teaching assistant (both during my undergraduate and graduate degrees), there is a lot of calculations going on. 
+Physics labs involved performing experiments to determine underlying constants or known quantities. 
+Chemistry labs often involved quantitative determinations, even more so as labs advanced over the years.
+Even my biology labs frequently involved calculations and generation of reports to hand in.
+In **my** first year, calculators were relied upon, along with example worksheets showing where to fill things in and how to do the calculations. 
+Over the years, Microsoft Excel was eventually introduced, and at one point during my senior Analytical Lab was basically required.
+
+What if students were consistently introduced to another way to do the necessary calculations for their labs?
+
+## An Alternative to Calculators and Excel
+
+I'm imagining **all** of the undergraduate science labs, Biology, Chemistry, Physics and Geology, requiring the use of either Python or R to do the quantitative calculations and produce reports.
+It would likely require an immense effort on the part of teaching faculty for each lab, teaching assistants in the lab, as well as having one or two dedicated persons who are able to help students with issues running R / Python and getting packages installed.
+Ideally, students would be introduced to generating their full reports gradually, starting with highly scaffolded lab reports where they simply have to supply a few numbers, click `knit` (assuming we are using R within RStudio) and generate a report that can be submitted.
+Over time, the lab reports would involve more and more calculations being coded directly by the student, and more of the report written directly by them.
+This scaffolding would likely be repeated at each level of labs.
+
+## Challenges in Implementation
+
+I see three main challenges in implementing something like the above.
+
+### Getting all the Departments On Board
+
+Seriously, getting all of the lab teaching faculty on board so that this happens across all of the science departments and at all levels of labs.
+Although it would be very useful even if done consistently in a single department, I think the biggest bang for the buck is going to be **all** departments buying in.
+
+### Converting all the Labs
+
+After convincing everyone that this is a worthy goal, then there is the herculean task of figuring out how to make the labs fit into this type of framework.
+The added wrinkle to this is that labs are frequently marked on how close one got to the **right** answer (known concentration of a standard, for example), which can depend both on how accurately one performs the experimental technique being taught, and how well one does the calculations (at least this was my experience as student and TA).
+Not only that, but many labs often had two parts, sometimes in the same lab period, where messing up the first part meant that you would have completely wrong answers in the second part.
+Getting even a first pass conversion would be a monumental effort on the part of someone with extensive scripting language knowledge and the teaching faculty.
+
+There is also the question of how to convert the labs. 
+I would imagine that first year would be done first, and then second, third, fourth. 
+But this would also be interwoven with updates to the labs as issues are discovered within each year, and modifications made each year.
+
+### Supporting the Students and Faculty
+
+Let's face it, doing things this way requires more hardware than just having a calculator in lab with you. Python and R will install on **almost** any OS however, and the types of calculations necessary are not compute intensive.
+However, there will invariably be issues getting software and necessary packages installed, and keeping them up to date. 
+There needs to be someone who is able to be present both in and outside lab time that can help diagnose package installation and update issues.
+This same person will also likely be tasked with helping teaching faculty and assistants install and update necessary software and packages.
+
+Not discussed above, but ideally the design of the lab reports should also make sure that they depend on a very low number of packages, and that those packages will install on **any** OS that the students come in with.
+
+## Has Anyone Done This?
+
+I'd be really curious if anyone has attempted anything like this.
+Please leave a comment if you know of any!
+
+## Interested?
+
+I'll admit, being the person behind an effort like this is probably the one thing right now that would convince me to leave my current position in trying to solve cancer metabolomics.
+Drop me a line if this sounds interesting to you!

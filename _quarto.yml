@@ -1,0 +1,26 @@
+project:
+  type: website
+
+website:
+  title: "Deciphering Life: One Bit at a Time"
+  site-url: "https://rmflight.github.io"
+  navbar:
+    right:
+      - about.qmd
+      - text: RCS
+        href: random_code_snippets.qmd
+      - icon: github
+        href: https://github.com/rmflight
+      - text: "{{< ai orcid >}}"
+        href: https://orcid.org/0000-0001-8141-7788
+      - icon: mastodon
+        href: https://mastodon.social/@rmflight
+format:
+  html:
+    theme: 
+      dark: darkly
+      light: flatly
+    css: 
+      - styles.css
+
+

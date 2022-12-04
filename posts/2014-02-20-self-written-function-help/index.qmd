@@ -1,0 +1,49 @@
+---
+title: "Self-Written Function Help"
+date: 2014-02-20
+categories: [R, packages, documentation, development, devtools, roxygen2, docstrings]
+subtitle: |
+  Do you want to be able to read function documentation for your own functions? Make your own package.
+---
+
+I have noted at least one [instance](http://www.activeanalytics.co.uk/blog/rvspythonwhyrisstillthekingofstatisticalcomputing) (and there are probably others) about how `Python`'s [docStrings](http://en.wikipedia.org/wiki/Docstring#Python) are so great, and wouldn't it be nice to have a similar system in `R`. Especially when you can have your new function tab completion available depending on your development environment.
+
+This is a false statement, however. If you set up your `R` development environment properly, you can have these features available in `R`. It will take a little bit of work, however.
+
+This approach heavily depends on `devtools` and `roxygen2`. 
+
+## RStudio
+
+I do recommend using the [`RStudio`](http://rstudio.org) IDE, as much of what I am discussing is very much integrated into the IDE itself. However, much of what I discuss is applicable regardless of what development environment you use.
+
+## Packages
+
+First off, you probably want to put your functions into [packages](http://cran.r-project.org/doc/manuals/R-exts.html#Package-structure). Really, it's not that hard. A [`DESCRIPTION`](http://cran.r-project.org/doc/manuals/R-exts.html#The-DESCRIPTION-file) file, [`NAMESPACE`](http://cran.r-project.org/doc/manuals/R-exts.html#Package-namespaces), and an `R` directory with your function definitions. If you are using `RStudio`, then you can create a new **project** as a package. Alternatively, you can set up a new package directory using `package.skeleton`. 
+
+If you are using `RStudio`, I recommend setting your package options:
+
+* Generate package documentation with `roxygen` (roxygen2)
+  * Select all the options (especially regenerate `Rd` files on `Build & Reload`)
+  
+Whenever you make changes to your package functions, you simply `commit` (you are using version control, right??), and then `Build & Reload` (if using `RStudio`) or `install()` if using `devtools`.
+
+## Roxygen2 Documentation
+
+For documentation that lives with your functions, I heavily recommend using [`roxygen2`](http://adv-r.had.co.nz/Documenting-functions.html). Although the normal way to document stuff in `R` is through the use of `Rd` files, `roxygen2` allows you to put the following in your `R\functions.r` file:
+
+```r
+#' this is a silly function
+#' @param input1 this is an input to our function
+#' @param input2 this is another input
+#' @return some value
+#' @export
+sillyFunction <- function(input1, input2){
+  FunctionBody
+}
+```
+
+When you do `Build & Reload` (or `install`), the required `Rd` file will be generated automatically, and upon `Reload`ing the package, you will have full access to your documentation, and tab completion of your new function, along with descriptions of the parameters if you are using `RStudio`. Note, if you are not using `RStudio`, then you should do `document` to re-generate `Rd` files prior to doing `install`.
+
+This particular workflow is how I now work in `R`, for almost every project that includes **any** self written functions, including analysis projects. Why I use this (and not another format such as [ProjectTemplate](http://www.johnmyleswhite.com/notebook/2010/08/26/projecttemplate/)) is another post, hopefully soon.
+
+Updated 2014.02.21: Note that the original post mentioned `roxygen` instead of `roxygen2`. Thanks Carl for pointing that out. You should use `roxygen2` for documentation.

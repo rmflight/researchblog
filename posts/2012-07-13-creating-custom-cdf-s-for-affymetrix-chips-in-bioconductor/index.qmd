@@ -1,0 +1,164 @@
+---
+title: "Creating Custom CDFs for Affymetrix Chips in Bioconductor"
+date: 2012-07-13
+subtitle: |
+  Examples of messing with Affymetrix CDF data in Bioconductor.
+categories: [R, bioconductor, bioinformatics, cdf, affymetrix, microarray, random-code-snippets]
+---
+
+```{r knitrOpts, echo=FALSE}
+#knit_hooks$set(inline = identity) # sets output for inline resutls nicely
+knitr::knit_hooks$set(error = function(x, options) stop(x)) # kills knitr if there
+# is an error, therefore we don't waste time generating error messages
+options(stringsAsFactors=FALSE) 
+# set up the default compression, and do NOT allow strings in data frames to become factors.
+# That one is really important, and continually messes me up.
+startTime <- Sys.time() # when did we start
+```
+
+## What?
+
+For those who don't know, **CDF** files are chip definition format files that define which probes on an Affymetrix microarray chip belong together, and are necessary to use any of the standard summarization methods such as **RMA**, and others.
+
+## Why?
+
+Because we can, and because custom definitions have been shown to be quite useful. See the information over at [Brainarray][linkBrain].
+
+## Why not somewhere else?
+
+A lot of times other people create custom **CDF** files based on their own criteria, and make it subsequently available for others to use (see the [Brainarray][linkBrain] for an example of what some are doing, as well as [PlandbAffy][linkplandb]) 
+
+
+You have a really nifty idea for a way to reorganize the probesets on an Affymetrix chip to perform a custom analysis, but you don't want to go to the trouble of actually creating the CDF files and Bioconductor packages normally required to do the analysis, and yet you want to test and develop your analysis method.
+
+## How?
+
+It turns out you are in luck. At least for **AffyBatch** objects in Bioconductor (created by calling **ReadAffy**), the **CDF** information is stored as an attached environment that can be easily hacked and modified to your hearts content. Environments in R are quite important and useful, and I wouldn't have come up with this if I hadn't been working in R for the past couple of years, but figured someone else might benefit from this knowledge.
+
+## The environment
+
+In R, one can access an environment like so:
+
+```{r accessEnv, eval=FALSE}
+get("objName", envName) # get the value of object in the environment
+ls(envName)
+```
+
+What is also very cool, is that one can extract the objects in an environment to a list, and also create their own environment from a list using `list2env`. Using this methodology, we can create our own definition of probesets that can be used by standard Bioconductor routines to summarize the probes into probesets.
+
+A couple of disclaimers:  
+
+* I have only tried this on 3' expression arrays
+* There might be a better way to do this, but I couldn't find it (let me know in the comments)
+
+## Example
+
+```{r example1}
+require(affy)
+require(estrogen)
+require(hgu95av2cdf)
+
+datadir = system.file("extdata", package="estrogen")
+
+pd = read.AnnotatedDataFrame(file.path(datadir, "estrogen.txt"), header=TRUE, sep="", row.names=1)
+pData(pd)
+
+celDat = ReadAffy(filenames = rownames(pData(pd)), 
+                  phenoData = pd,
+                  verbose=TRUE, celfile.path=datadir)
+```
+
+This loads up the data, reads in the raw data, and gets it ready for us to use. Now, lets see what is in the actual **CDF** environment.
+
+```{r examineCDF}
+topProbes <- head(ls(hgu95av2cdf)) # get a list of probesets
+topProbes
+
+exSet <- get(topProbes[1], hgu95av2cdf)
+exSet
+```
+
+We can see here that the first probe set `r topProbes[1]` has `r nrow(exSet)` perfect-match and mis-match probes in associated with it. 
+
+Lets summarize the original data using RMA.
+
+```{r sumRMA1}
+rma1 <- exprs(rma(celDat))
+
+head(rma1)
+```
+
+Now lets get the data as a list, and then create a new environment to be used for summarization.
+
+```{r newEnv}
+allSets <- ls(hgu95av2cdf)
+allSetDat <- mget(allSets, hgu95av2cdf)
+
+allSetDat[1]
+
+hgu2 <- list2env(allSetDat)
+celDat@cdfName <- "hgu2"
+
+rma2 <- exprs(rma(celDat))
+head(rma2)
+```
+
+What about removing the **MM** columns? RMA only uses the **PM**, so it should still work.
+
+```{r removeMM}
+allSetDat <- lapply(allSetDat, function(x){
+  x[,1, drop=F]
+})
+
+allSetDat[1]
+
+hgu3 <- list2env(allSetDat)
+celDat@cdfName <- "hgu3"
+rma3 <-exprs(rma(celDat))
+head(rma3)
+```
+
+What if we only want to use the first 5 probesets?
+
+```{r first5}
+allSetDat <- allSetDat[1:5]
+hgu4 <- list2env(allSetDat)
+celDat@cdfName <- "hgu4"
+celDat
+rma4 <- exprs(rma(celDat))
+rma4
+dim(rma4)
+```
+
+## Custom CDF
+
+To generate our custom CDF, we are going to set our own names, and take random probes from all of the probes on the chip. The actual criteria of which probes should be together can be made using any method the author chooses.
+
+```{r customCDF}
+maxIndx <- 640*640
+
+customCDF <- lapply(seq(1,100), function(x){
+  tmp <- matrix(sample(maxIndx, 20), nrow=20, ncol=1)
+  colnames(tmp) <- "pm"
+  return(tmp)
+})
+
+names(customCDF) <- seq(1, 100)
+
+hgu5 <- list2env(customCDF)
+celDat@cdfName <- "hgu5"
+rma5 <- exprs(rma(celDat))
+
+head(rma5)
+```
+
+I hope this information is useful to someone else. I know it made my life a lot easier.
+
+```{r sessionInfo}
+sessionInfo()
+```
+
+Originally published 2013/07/13, moved to http://rmflight.github.io on 2013/12/04.
+
+[linkBrain]: http://brainarray.mbni.med.umich.edu/Brainarray/Database/CustomCDF/genomic_curated_CDF.asp
+[linkplandb]: http://affymetrix2.bioinf.fbb.msu.ru/

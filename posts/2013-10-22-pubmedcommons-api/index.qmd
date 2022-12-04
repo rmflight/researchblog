@@ -1,0 +1,23 @@
+---
+title: "PubmedCommons API"
+date: 2013-10-22
+categories: [open-science, pubmed]
+subtitle: |
+  Pubmed commons is a new commenting system for pubmed articles.
+---
+
+The announcements are out, Pubmed is introducing a commenting system [pubmedcommons](http://www.ncbi.nlm.nih.gov/pubmedcommons/), theoretically providing a single location for true post-publication peer review. This is a really good idea, as NCBI is likely to be around for a lot longer than a given publisher, and the requirement for all NIH funded research to be deposited into Pubmed.
+
+There are some detractors, and they may have some valid points [link](https://twitter.com/caseybergman/status/392729744640577537). However, the alternative, [pubpeer](https://pubpeer.com/), I had not heard about. [F1000](http://f1000.com/) puts the comments in one location, in a way that is no better than a single publisher site.
+
+What would truly let the pubmedcommons proliferate would be if it became the equivalent of [disqus](disqus.com), but for scientific articles. For those who don't know, disqus is essentially a remote commenting platform that provides commenting on other websites. For example, [my blog](http://rmflight.github.io) is a static site, and comments are provided by disqus. This is enabled with an account on disqus and a javascript snippet on my website.
+
+It would be neat if pubmedcommons became a similar platform for scientific articles, with a little bit more flexibility. i.e. someone would be able to include some javascript, with relevant pubmed IDs, and the comments for that article would be displayed, and others would be able to make comments on that site.
+
+### Let me illustrate with an example.
+
+Imagine I publish a paper in PLOS One (or **any** other journal, for that matter). Upon acceptance, the paper also gets a pubmed id. This instantly creates a forum for comments using pubmedcommons. In addition, PLOS One adds a little bit of javascript to their page for the paper that enables the same commenting system. Therefore, any comments made on the paper at pubmed or PLOS One appear in both places (maybe with a tag for where they originated?). In addition, I post a copy of the paper on my own blog, and add the same javascript, and readers will see the comments made at pubmed, PLOS One, and can comment on the paper on my own blog. In addition, someone else could do the same to display the comments on their own site, etc, etc. 
+
+I think the above example might have the potential to revolutionize post-pub peer review, because the actual comments are hosted in a central location, but are accessible in many different locations where the publication might exist. 
+
+Now, it could still go awry. They could take too long to open things up, they might make the policies regarding comments too restrictive, they may police the comments too heavily, etc, etc. But

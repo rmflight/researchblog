@@ -1,0 +1,30 @@
+---
+title: "Reusing ggplot2 Colors"
+subtitle: |
+  When you want to reuse ggplot2 default colors across plots.
+date: 2021-12-21
+categories: [random-code-snippets, ggplot2, visualization]
+editor_options: 
+  chunk_output_type: console
+---
+
+If you are using {ggplot2} a lot in your code, and don't want to bother with a custom color scheme (I mean, there are lots of good options), but you are also using non-ggplot2 type plots, and want to reuse the colors.
+
+I frequently encounter this when I'm doing principal component analysis (PCA) **combined** with heatmaps plotted by `{ComplexHeatmap}`.
+I've colored sample groups in the PCA using `{ggplot2}` defaults, and now I want those same colors in the `{ComplexHeatmap}` row or column annotations.
+
+The trick to this is extracting the `palette` from the color definition you want.
+For example, very commonly (in biology at least) we might have 2 classes of samples, cases and controls.
+So we need 2 colors.
+
+When we generated the {ggplot2} plot, we would do something like this:
+
+```{r example_plot, eval = FALSE}
+ggplot(data_frame, aes(x = var1, y = var2, color = groups))
+```
+
+To generate the matching colors for something else, we can do:
+
+```{r get_colors, eval = FALSE}
+g_colors = scale_color_discrete()$palette(2)
+```

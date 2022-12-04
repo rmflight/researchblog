@@ -1,0 +1,69 @@
+---
+title: "Open vs Closed Analysis Languages"
+date: 2013-10-21
+categories: [open-science, R, python, MatLab, programming, development]
+subtitle: |
+  Talking about R & Python vs MatLab as examples of open and closed data analysis languages.
+---
+
+##  TL;DR
+
+I think data scientists should choose to learn **open** languages such as `R` and `python` because they are **open** in the sense that anyone can obtain them, use them and modify them for free, and this has lead to large, robust groups of users, making it more likely that packages exist that you can use, and others can easily build on your own work.
+
+## Why the debate?
+
+This was sparked by a comment on twitter suggesting that data scientists and analysts need to be *polyglots*, that they should know more than **one** programming language or analysis framework (the full conversation of tweets can be found [here](https://twitter.com/rmflight/status/387910932250517504))
+
+<blockquote class="twitter-tweet"><p>Data Scientists need to be Polyglots - know 2 or more of <a href="https://twitter.com/search?q=%23python&amp;src=hash">#python</a> <a href="https://twitter.com/search?q=%23rstats&amp;src=hash">#rstats</a> <a href="https://twitter.com/search?q=%23sas&amp;src=hash">#sas</a> <a href="https://twitter.com/search?q=%23spss&amp;src=hash">#spss</a> <a href="https://twitter.com/search?q=%23matlab&amp;src=hash">#matlab</a> <a href="https://twitter.com/search?q=%23julia&amp;src=hash">#julia</a> <a href="https://twitter.com/search?q=%23octave&amp;src=hash">#octave</a> <a href="http://t.co/LtzIOzZ4XH">http://t.co/LtzIOzZ4XH</a></p>&mdash; Gregory Piatetsky (@kdnuggets) <a href="https://twitter.com/kdnuggets/statuses/387706109509005312">October 8, 2013</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+
+The commenter suggested knowing at least two of:
+
+* R
+* Python
+* Matlab
+* SPSS
+* SAS
+* Julia
+* Octave
+
+My comment back was that one should really evaluate whether `SPSS`, `SAS` and `Matlab` should be on this list, as they are *closed* languages, not open, or free.
+
+I want to expand on *why* I made that comment. Let me be forthright, I have not used `SPSS`, nor `SAS`, but I have programmed in `MatLab` and `R` extensively, and dabbled in `Python`. 
+
+**I also think it is a good thing for data scientists to know more than one language.** Just to be clear, I am **NOT** arguing that point.
+
+## Closed
+
+What is a closed analysis language? I would say that there are three types of closed languages:
+
+1. those that are not free (but still may their source code openly available)
+1. those where the underlying engine is closed source
+1. those where one cannot write their own functions to expand on what is already available
+
+Now, `MatLab` fits the first two categories. It is rather expensive to get a license for, the license **can** be restrictive (I know they have had a lot of abuse of licenses in the past, and they are trying to avoid that), and you are not expected to poke around in the internals of the `MatLab` engine. Oh, and if you want more than the base engine, expect to pay heavily for add-on packages.
+
+However, it is possible to write add-on's for `MatLab`. I have previously [written a few](http://www.mathworks.com/matlabcentral/fileexchange/authors/19294).
+
+### Closed problem: Checking results
+
+So why are closed languages a problem? A closed language that does not make it **possible** to examine the underlying functionality of the analysis engine has two problems:
+
+1. surety that calculations are done correctly
+1. the ability of others to run and check results
+
+Both of these are issues that are really important in **science**. I would consider a **data scientist** to be doing actual **science**, so others should be able to scrutinize their work. The best scrutiny, is for others to be able to actually run their code. If I can't run your code, then how do I know what you did is right?? If I can't afford a copy of `MatLab` to run your code (assuming you made it available, you did provide the source for the analysis, right?), that is a bad thing.
+
+### Closed problem: Re-using code
+
+Of course, the other problem is that with a closed language you have made it impossible for others to easily make use of your analysis. Sure, they could code it up in another language, but unless it is the be-all and end-all of analysis methods, I'm not going to bother. I don't have a license for `MatLab`, or `SPSS`, or `SAS`, and I can't afford it; therefore I'm not going to use your method / code nor give you a citation or credit.
+
+## Solution: Open languages
+
+Languages like `R` and `python`, they don't have these problems. If I wonder how a function in the base distribution of `R` or `python` works, I can go look at the source. If I find a bug, I can suggest a fix, or fix it myself and tell others about it. In addition, if I write code to do an analysis, I can make it available and know that others **should** have the ability to examine it, including re-running it, in addition to using it for themselves, if it is licensed appropriately. This is the way science should work.
+
+## What should you use?
+
+Some would argue that you should use `MatLab`, `SAS`, and `SPSS` because they have been around for a while, and are the standard. I would argue that you should not use them because they are controlled by single corporate entities, who are only interested in what will get people to buy their product and use it. You should use software that [others are using](http://r4stats.com/articles/popularity/), and that others will be able to use, regardless of income.
+
+`R` is being used in lots of different places, by lots of different people for statistics, bioinformatics, visualization, and as a general functional language. `Python` is a great general purpose language that provides a lot of **functional** glue for doing lots of different things. 

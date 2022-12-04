@@ -1,0 +1,58 @@
+---
+title: "Highlighting a Row of A ComplexHeatmap"
+subtitle: |
+  A simple way to highlight or bring attention to a row or column in a ComplexHeatmap.
+date: 03-26-2021
+categories: [random-code-snippets, heatmap, visualization]
+bibliography: refs.bib
+editor_options: 
+  chunk_output_type: console
+---
+
+The ComplexHeatmap Bioconductor package [@complexheatmapPub; @complexheatmapPackage; @complexheatmapRef] has become my goto for visualizing sample-sample correlation heatmaps, which I use a lot.
+Recently, I had a report where I wanted to highlight a particular row of the heatmap.
+There is not an **easy** way that I could find to add something that wraps around a particular column.
+However, you can indicate that there is a grouping in the heatmap, and use that grouping to separate a sample or samples from the others.
+
+Lets do an example:
+
+```{r create_heatmap, message = FALSE}
+library(ComplexHeatmap)
+set.seed(123)
+nr1 = 4; nr2 = 8; nr3 = 6; nr = nr1 + nr2 + nr3
+nc1 = 6; nc2 = 8; nc3 = 10; nc = nc1 + nc2 + nc3
+mat = cbind(rbind(matrix(rnorm(nr1*nc1, mean = 1,   sd = 0.5), nr = nr1),
+          matrix(rnorm(nr2*nc1, mean = 0,   sd = 0.5), nr = nr2),
+          matrix(rnorm(nr3*nc1, mean = 0,   sd = 0.5), nr = nr3)),
+    rbind(matrix(rnorm(nr1*nc2, mean = 0,   sd = 0.5), nr = nr1),
+          matrix(rnorm(nr2*nc2, mean = 1,   sd = 0.5), nr = nr2),
+          matrix(rnorm(nr3*nc2, mean = 0,   sd = 0.5), nr = nr3)),
+    rbind(matrix(rnorm(nr1*nc3, mean = 0.5, sd = 0.5), nr = nr1),
+          matrix(rnorm(nr2*nc3, mean = 0.5, sd = 0.5), nr = nr2),
+          matrix(rnorm(nr3*nc3, mean = 1,   sd = 0.5), nr = nr3))
+   )
+mat = mat[sample(nr, nr), sample(nc, nc)] # random shuffle rows and columns
+rownames(mat) = paste0("row", seq_len(nr))
+colnames(mat) = paste0("column", seq_len(nc))
+
+Heatmap(mat, cluster_rows = FALSE, cluster_columns = FALSE)
+```
+
+Now, lets suppose we just want to highlight **row2**.
+
+We create a data.frame with a factor to represent the grouping:
+
+```{r highlight_row2, preview = TRUE}
+which_row2 = which(grepl("row2", rownames(mat)))
+split = data.frame(x = c(rep("A", which_row2 - 1), "B",
+                   rep("C", nrow(mat) - which_row2)))
+Heatmap(mat, cluster_rows = FALSE, cluster_columns = FALSE,
+        row_split = split,
+        row_title = NULL)
+```
+
+Voila! **row2** is separated from the others to draw attention to it.
+It's not perfect, but hopefully it's useful to others.
+Note, that you can't use clustering with this method.
+If you have actual dendrograms to display, this will fail, because ComplexHeatmap expects you to use a numeric argument to tell the cut height for dendrograms for splitting [@complexheatmapSplit].
+Therefore, if you have dendrograms, reorder your columns and rows according to the dendrogram **first** and then add the splitting information and keep the clustering off.

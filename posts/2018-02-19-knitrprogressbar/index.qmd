@@ -1,0 +1,53 @@
+---
+title: "knitrProgressBar Package"
+date: '2018-02-19'
+categories: [packages, R, developement]
+subtitle: |
+  Ever wanted a progress bar output visible in a knitr document? Now you can!
+---
+
+## TL;DR
+
+If you like `dplyr` progress bars, and wished you could use them everywhere, including from within Rmd documents, non-interactive shells, etc, then you should check out `knitrProgressBar` ([cran](https://cran.r-project.org/package=knitrProgressBar) [github](https://github.com/rmflight/knitrProgressBar)).
+
+## Why Yet Another Progress Bar??
+
+I didn't set out to create **another** progress bar package. But I really liked `dplyr`s style of progress bar, and how they worked under the hood (thanks to the [examples](https://rud.is/b/2017/03/27/all-in-on-r%E2%81%B4-progress-bars-on-first-post/) from Bob Rudis).
+
+As I used them, I noticed that no progress was displayed if you did `rmarkdown::render()` or `knitr::knit()`. That just didn't seem right to me, as that means you get no progress indicator if you want to use caching facilities of `knitr`. So this package was born.
+
+## How??
+
+These are pretty easy to setup and use.
+
+```{r usethem}
+library(knitrProgressBar)
+
+# borrowed from example by @hrbrmstr
+arduously_long_nchar <- function(input_var, .pb=NULL) {
+  
+  update_progress(.pb) # function from knitrProgressBar
+  
+  Sys.sleep(0.01)
+  
+  nchar(input_var)
+  
+}
+
+# using stdout() here so progress is part of document
+pb <- progress_estimated(26, progress_location = stdout())
+
+purrr::map(letters, arduously_long_nchar, .pb = pb)
+```
+
+The main difference to `dplyr`s progress bars is that here you have the option to set **where** the progress gets written to, either automatically using the built-in `make_kpb_output_decisions()`, or directly. Also, I have provided the `update_progress` function to actually do the updating or finalizing properly.
+
+There are also package specific options to control **how** the decisions are made.
+
+See the [main](https://rmflight.github.io/knitrProgressBar/) documentation, as well as the [included vignette](https://rmflight.github.io/knitrProgressBar/articles/example_progress_bars.html).
+
+## Multi-Processing
+
+As of V1.1.0 (should be on CRAN soon), the package also supports indicating progress on multi-processed jobs. See the included [vignette](https://rmflight.github.io/knitrProgressBar/articles/multiprocessing.html) for more information.
+
+By the way, I know this method is not ideal, but I could not get the combination of `later` and `processx` to work in my case. If anyone is willing to help out, that would be great.

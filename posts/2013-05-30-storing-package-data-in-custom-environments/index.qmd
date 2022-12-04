@@ -1,0 +1,17 @@
+---
+title: "Storing Package Data in Custom Environments"
+date: 2013-05-30
+categories: [R, packages]
+subtitle: |
+  How do you keep track of stuff for your own package without cluttering the users global space or setting a bunch of options?
+---
+
+If you do `R` package development, sometimes you want to be able to store variables specific to your package, without cluttering up the users workspace. One way to do this is by modifying the global `options`. This is done by packages `grDevices` and `parallel`. Sometimes this doesn't seem to work quite right (see this [issue](https://github.com/cboettig/knitcitations/issues/14) for example.
+
+Another way to do this is to create an environment within your package, that only package functions will be able to see, and therefore read from and modify. You get a space to put package specific stuff, the user can't see it or modify it directly, and you just need to write functions that do the appropriate things to that environment (adding variables, reading them, etc). This sounds great in practice, but I wasn't clear on how to do this, even after reading the [help page on environments](http://stat.ethz.ch/R-manual/R-devel/library/base/html/environment.html), the [R documentation](http://cran.r-project.org/doc/manuals/r-release/R-intro.html), or even [Hadley's excellent writeup](https://github.com/hadley/devtools/wiki/Environments). From all these sources, I could glean that one can create environments, name them, modify them, etc, but wasn't sure how to work with this within a package.
+
+I checked out the [`knitcitations`](https://github.com/cboettig/knitcitations) package to see how it was done. When I looked, I realized that it was pretty obvious in retrospect. In `zzz.R`, initialize the environment, assigning it to a variable. When you need to work with the variables inside, this variable will be accessible to your package, and you simply use the `get` and `assign` functions like you would if you were doing anything on the command line.
+
+To make sure I had it figured out, I created a very [tiny package](https://github.com/rmflight/testEnvironment) to create a custom environment and functions for modifying it. Please feel free to examine, download, install (using [`devtools`](https://github.com/hadley/devtools)]) and see for yourself.
+
+I have at least two projects where I know I will use this, and I'm sure others might find it useful as well.

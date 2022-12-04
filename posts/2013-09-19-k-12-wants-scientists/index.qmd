@@ -1,0 +1,19 @@
+---
+title: "K-12 Wants Scientists!!"
+date: 2013-09-19
+categories: [post-doc, academia, science, teaching]
+subtitle: |
+  I recently attended a talk about PhD scientists in grade school teaching.
+---
+
+It seems that the PostDoc committee here at UK has an interest in providing some information on alternative careers for PostDocs outside of academia. We all know that there are not enough PI slots at universities for all of the PhDs who are going on to do PostDocs, and many will end up in *alternative* (I use that term loosely) careers.
+
+Yesterday (2013-09-18), Scott Diamond gave a *seminar* to PostDocs in the Medical Center at UK on getting involved in teaching science at the K-12 and college level. Scott was previously a professor here at UK, who got involved in science teaching at local schools, saw how miserable many students were in science classes, and wanted to change that. So he quit academia, got his teaching certification, and is now teaching science at a school for high-risk youth, [The Learning Center](http://www.tlc.fcps.net/), here in Fayette County. 
+
+This school takes 180 of the kids who are extremely truant, i.e. they like to skip school. Of course, we know that poverty is a big factor in the decision to skip school, but so is boredom from lack of engagement with the material. At The Learning Center they have been finding that if you find ways to make the material engaging (especially science), then the kids will *want* to be at school, learning, and they will still do well on the standard testing. Scott mentioned that these kids in regular school were truant at least 50% of the time, and at The Learning Center they have an attendance rate of 95%.
+
+As scientists, we are out to make discoveries. We look at something happening in the natural world, make hypotheses, and test them. Even in bioinformatics, the goal is to use computers to analyze biological data so we can understand better how these biological systems work, and make better hypotheses and test them. This is not how science is taught in K-12 right now here in the US. In many school systems, it is merely recitation of science facts, with no actual "investigational" science going on. 
+
+Scott (and others) are working to change this. But to do it right, they need trained scientists in the system. So if you are thinking about doing something other than academia following your PostDoc, and want to help kids be truly interested in science and how it works, maybe you should consider going into teaching K-12??
+
+If you want more info about The Learning Center, about their model, or about getting into teaching at this level, you can reach Scott at `scott` dot `diamond` near `uky` circular shape `edu`.

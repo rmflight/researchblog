@@ -1,0 +1,64 @@
+---
+title: "R, RStudio, and Release and Dev Bioconductor"
+date: 2013-09-17
+categories: [R, bioconductor, rstudio, programming, packages, development]
+subtitle: |
+  Working with the development version of Bioconductor on linux can be a pain. This is one way to do it.
+---
+
+**Update 2021-02-18**: Now I would just use the [r-docker](https://www.bioconductor.org/help/docker/) image and the RStudio interface.
+I actually just did this recently to test updates to my package.
+
+I have one [`Bioconductor` package](http://bioconductor.org/packages/release/bioc/html/categoryCompare.html) that I am currently responsible for. Each [bi-annual release](http://master.bioconductor.org/developers/release-schedule/) of `Bioconductor` requires testing and squashing errors, warnings and bugs in a given package. Doing this means being able to work with multiple versions of `R` and multiple versions of `Bioconductor` libraries on a single system (assuming that you do production work and development on the same machine, right?).
+
+I really, really like [`RStudio`](http://rstudio.org) as my working `R` environment, as some of you have read before. So how do we get `RStudio` on our Linux system to respect which version of `R` and libraries we want to use?
+
+## Setup
+
+This assumes that you have your `R` installs set somewhere properly, and a **normal** library for production level packages. You should install whichever `Bioconductor` packages you want into the **normal** library, and then make a copy of that. This copy will be your **development** library.
+
+```
+cp -R productionLibrary developmentLibrary
+```
+
+I also assume that you are using a local (i.e. sits in your *home* directory) `.Renviron` file to control where `R` installs the packages.
+
+## Changing Versions
+
+`RStudio` really needs the environment variable `RSTUDIO_WHICH_R` set to know where `R` is, and `R` looks at `R_LIBS` in the `.Renviron` file. So I simply create two shell scripts that get sourced.
+
+### useRDev.sh
+
+```
+#!/bin/sh
+export RSTUDIO_WHICH_R=/pathToDevR/bin/R
+echo "R_LIBS=pathtoDevLibs" > .Renviron
+```
+
+Then I can simply do `source useRDev.sh` when I need to use the development `R` and library. **Note** that you will need to start `RStudio` from the shell for it to respect this environment variable. `RStudio` generally seems to install to `/usr/lib/rstudio/bin/rstudio`.
+
+### resetR.sh
+
+```
+#!/bin/sh
+export RSTUDIO_WHICH_R=/pathtoReleaseR/bin/R
+echo "R_LIBS=pathtoReleaseLibs" > .Renviron
+```
+
+This resets my variables by doint `source resetR.sh`.
+
+## Bioconductor Dev Version
+
+To setup `Bioconductor` to use the develoment version, simply:
+
+```
+source useRDev.sh
+rstudio
+
+# once in RStudio
+library(BiocInstaller)
+useDev()
+biocLite(ask=F) # this will update all the installed bioconductor packages
+```
+
+I know this is not the most ideal situation, because I am rewriting over files, but it is working for me, and I thought it might help somone else.

@@ -1,0 +1,71 @@
+---
+title: "Analyses as Packages"
+date: 2014-07-28
+categories: [R, development, packages, vignettes, programming, analysis]
+subtitle: |
+  Why I think packages make good ways to structure an analysis.
+---
+
+*Edit 2022-12-02*: [I don't recommend](/posts/2021-03-02-packages-dont-work-well-for-analyses-in-practice) this approach anymore.
+
+## TL;DR
+
+Instead of writing an analysis as a single or set of `R` scripts, use a `package` and include the analysis as a `vignette` of the package. Read below for the why, the [how is in the next post](/posts/2014-07-28-creating-an-analysis-as-a-package).
+
+## Analyses and Reports
+
+As data science or statistical researchers, we tend to do a lot of analyses, whether for our own research or as part of a collaboration, or even for supervisors depending on where we work. As I have continued working in `R`, I have progressed from having a simple `.R` script (or collection of related scripts) to using a package to structure as much of my research as possible, including analyses that generate reports. 
+
+Note that I have been meaning to write this post for a while, but the tipping point was seeing [these tweets](https://twitter.com/hspter/statuses/489075887460339712) from [Hilary Parker](https://twitter.com/hspter) and [David Nusinow](https://twitter.com/dnusinow)
+
+> I am all about the many short scripts rather than one long script when doing an analysis. I think I am alone here.
+
+## Why Packages
+
+Packages are `R`'s method for sharing code in a sensible way, making it possible for others to easily (more often than not) use functions that you have written (I'm looking at you `python`!). Why not use them? They also give you access to `R`'s facilities for documentation and sharing computable documents. [Hadley Wickham](https://twitter.com/hadleywickham) has a nice section on packages in his [Advanced R](http://adv-r.had.co.nz/Philosophy.html) book. 
+
+I use a lot of Hadley's packages in the following sections, because they are useful, and promote practices that make it extremely practical to use packages as a way to make an analysis a self-contained unit.
+
+Duncan Murdoch has a nice slide deck on why to use packages and vignettes [here](http://www.stats.uwo.ca/faculty/murdoch/ism2013/5Vignettes.pdf)
+
+### Structure
+
+I want to breifly review the structure of package directories, you can read more about packages in Hadley's book (link above), and in the official `R` [documentation from `CRAN`](http://cran.r-project.org/doc/manuals/r-release/R-exts.html).
+
+Packages impose a relatively simple structure on your project directory. `/R` contains the `.R` files with your actual functions, and `/data` can contain any `.RData` or `.rda` files that you might need. Other data types (`.txt`, `.tab`, `.csv`) can also go in `/data`, or they may go in `/inst/extdata`. Note that in `/inst/extdata` you can specify any directory structure that seems appropriate.
+
+Other required files are [`DESCRIPTION`](http://cran.r-project.org/doc/manuals/r-release/R-exts.html#The-DESCRIPTION-file) and [`NAMESPACE`](http://cran.r-project.org/doc/manuals/r-release/R-exts.html#Package-namespaces).
+
+You may also have `.Rmd` or `.Rnw` / `.Rtex` files in `/vignettes` that generate `html` or `pdf` output that combines prose and `R` code into a single document. This is where things get really interesting in being able to package up an analysis, especially when combined with functions.
+
+### Functions
+
+Almost any analysis I have done involves writing at least one function, generally more, because I almost never do anything once in an analysis. Packages are **the** primary method of sharing functions in `R` that make sure that your functions play nice with the `R` NAMESPACE, and allow one to define function dependencies from other packages. If you define a function in a package (and `export` it), it immediately becomes re-usable in multiple analyses, without worrying about suffering from copypasta.
+
+### Function Documentation
+
+The easiest way to document functions is by using [`roxygen2`](http://cran.r-project.org/web/packages/roxygen2/index.html) (see the intro [vignette](http://cran.r-project.org/web/packages/roxygen2/vignettes/roxygen2.html)). This allows you to worry about the documentation right next to the function itself, and not worry about writing separate documentation files in `/inst/doc` (really, you don't want to do it, I have, and it is painful). The [keywords](http://cran.r-project.org/web/packages/roxygen2/vignettes/rd.html) in `roxygen2` make sense, and are not hard to remember. 
+
+### Data
+
+As mentioned above, you can include data with your package. The neat thing about including data, is you can document it and have that documentation available as part of the package.
+
+I find it really useful to put any raw data that you want to work with in `/inst/extdata` in whatever format it exists, and then process the data and save it as an `.RData` file in `/data`, with associated documentation. It is also really useful if part of the calculations are long running, then you can save the results as an associated data file, and simply load it when needed in the analysis.
+
+Small note about documenting data sets. You put the `roxygen2` comments in another file, and also need to provide `@name` explicitly, and follow the documentation block with `NULL`. Check the `roxygen2` vignette "Generating Rd files" for a specific example.
+
+## Why Vignettes as a Reporting Method
+
+One great feature of packages is that one can include multiple `vignettes`, long form text mixed with `code` (and/or figures) to explain or highlight functionality in a package. Normally these are used to write tutorials, demonstrate features, or group together documentation that wouldn't normally be together in the general documentation. However, there are no limits as to what can actually be contained within the `vignette` as far as content, or how many `vignettes` a package can have. 
+
+For packages hosted by CRAN, `vignettes` are an optional component. However, the Bioconductor project requires that `vignettes` be included in each package.
+
+So, `R` packages have a method to include long form prose that can be mixed with `R` code directly as part of the package, within which you have already put your functions and associated data. 
+
+Prior to `R` 3.0, one generally had to write vignettes using `sweave`, a combination of `latex` and `R` code that generates a PDF file. However, since v3.0, it is possible to write vignettes using `R markdown` (and actually some other markup formats), which generates HTML output. The advantages to using `R markdown` over `sweave` are that the syntax for writing `markdown` is much simpler, and much more readable in it's raw format. 
+
+Given that a package allows us to define sets of related functions, data, and documentation (with dependencies defined) all in one place that others can subsequently install and make use of and build on, why wouldn't you want to use packages and vignettes to write long form analyses? 
+
+From some of my descriptions above, it may appear that this incurs some overhead. However, thanks to the **#hadleyverse** and `rstudio`, it is rather trivial (note that `rstudio` is not essential, but I find it does make it easier). In my [next post](/posts/2014-07-28-creating-an-analysis-as-a-package-and-vignette) I am going to give a worked example from start to finish of generating an analysis that is a vignette as part of a package.
+
+

@@ -1,0 +1,73 @@
+---
+title: "Narrower PDF Kable Tables"
+date: '2019-11-06'
+categories: [R, knitr, kable, learning, rmarkdown]
+subtitle: |
+  This is how you should make narrower kable tables in rmarkdown PDF documents.
+---
+
+## TL;DR
+
+Don't bother trying to roll your own function to make narrower `kable` tables in a PDF document, just use [`kableExtra`](https://cran.r-project.org/web/packages/kableExtra/index.html).
+
+## Motivation
+
+I've been creating tables in a report where I really needed the table to fit, and because I am using PDF output, that means the tables can't be any wider than the page. 
+As I'm sure many readers might be aware, `kable` tables will gladly overrun the side of the page if they are too wide.
+I've previously used `xtable` tables when I've had this issue, but I really appreciate the simplicity of `kable`.
+
+## First Solution: Custom Function
+
+After some serious Googling, I discovered the `\tiny` latex environment to change font sizes. 
+Wrapping pandoc tables in this was a no go, but I discovered that it could be embedded within latex table output.
+This lead me to create a simple function that allowed me to modify latex formatted tables.
+
+```r
+smaller_latex_table = function(kable_table, size = "tiny"){
+  split_table = strsplit(kable_table, "\n", )[[1]]
+  centering_loc = grepl("centering", split_table)
+  top_table = split_table[seq(1, which(centering_loc))]
+  bottom_table = split_table[seq(which(centering_loc)+1, length(split_table))]
+  new_table = c(top_table,
+                paste0("\\", size),
+                bottom_table)
+  structure(new_table, format = "latex", class = "knitr_kable")
+}
+```
+
+This worked! And worked quite well. 
+However, the downside to this is that because I had to explicity use latex tables, the tables didn't stay in place anymore and *floated* wherever there was free space in the document.
+Everything I tried with this to get the tables to **hold** in place failed.
+So back to the drawing board.
+
+## Second Solution: kableExtra
+
+By this point I've spent a whole day's worth of time trying to get this to work, just for some tables in my report.
+I had initially tried `kableExtra` on the suggestion of another StackOverflow post, but I had something odd in my latex environment, and odd things going on with tinyTex install that made some ugly tables.
+After re-installing tinyTex (no small feat to [make it discoverable](https://gist.github.com/rmflight/36b69b2608b070d0dcd38c87dd585d71) by apt installed RStudio on Linux), I finally got both smaller tables and held in place tables via `kableExtra`.
+
+To make the tables fit the width of the page, we use `latex_options = 'scale_down'`.
+
+For holding them to where they are declared, we use `latex_options = 'HOLD_position'`.
+However, this also requires the tex packages `longtable` and `float`, which should be declared in the yaml header.
+
+Putting it all together looks like this:
+
+```yaml
+## yaml header content
+title: "Title"
+author: "Me"
+output: 
+  pdf_document:
+    extra_dependencies: ["longtable", "float"]
+```
+
+```r
+## table call
+knitr::kable(data.frame) %>%
+  kableExtra::kable_styling(latex_options = c("scale_down", "HOLD_position"))
+```
+
+Now the table will fit on the page, and stay where it was declared!
+
+I hope I can save someone else two days of trial and error and crazy Googling!

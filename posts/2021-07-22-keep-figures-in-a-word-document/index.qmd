@@ -1,0 +1,61 @@
+---
+title: "Keeping Figures in an Rmd -- Word Document"
+subtitle: |
+  How to make your rmarkdown to word conversion also generate a directory of figures.
+date: 07-22-2021
+categories: [random-code-snippets, reproducibility, rmarkdown]
+bibliography: refs.bib
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+I've been working with a lot of collaborators who expect Word documents lately.
+I don't really like it, but it makes it a lot easier for them to edit and work with things back and forth.
+So I've really been working on generating nice output in the Word document.
+
+Recently, someone brought up collecting the figures for a manuscript for submission.
+For those in the know, when you submit a manuscript, you often submit the text with or without figures embedded, and then you also submit "high" resolution figure files separately (yes it's annoying, but that's the way it is for many submission systems).
+Now, you could plot twice in each chunk, but thats freaking annoying.
+Ideally, Rmarkdown or knitr should do all the work for us.
+And thanks to the R Markdown Cookbook [@rmarkdowncookbook], there is a simple way to do this.
+
+In the yaml preamble, simply set the parameter: `keep_md: true`, like this:
+
+```
+output:
+  word_document:
+    keep_md: true
+```
+
+Alternatively, if using Quarto:
+
+```
+output:
+  docx:
+    keep-md: true
+```
+
+This means the markdown intermediate is kept, as well as the directory of figures.
+The figures will be named with the name of the chunk, so you will want to name your chunks well to make it easy to find the figures.
+
+You can also control **where** your figures get written to, as well as the default figure size, output type, and resolution.
+
+This chunk sets the directory (path) the dpi to 300, to use cairo PNG output, the figure width to 8 in, height to 5 in.
+And then creates the directory (which I'm sure knitr does, but this is for my own sanity).
+
+```r
+# the trailing slash is important!
+fig_dir = here::here("doc", "figure_directory/") 
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, dpi = 300,
+                      dev.args = list(png = list(type = "cairo")),
+                      fig.width = 8, fig.height = 5,
+                      fig.path = fig_dir)
+if (!dir.exists(fig_dir)) {
+  dir.create(fig_dir)
+}
+```
+
+Edit: I rolled all of this functionality into a little package [`documentNumbering`](https://github.com/rmflight/documentNumbering).

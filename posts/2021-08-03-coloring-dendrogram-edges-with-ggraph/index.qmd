@@ -1,0 +1,68 @@
+---
+title: "Coloring Dendrogram Edges with ggraph"
+subtitle: |
+  Here is how I got edges colored in a dendrogram with ggraph. Use "node." in front of the node data column you want.
+date: 08-03-2021
+categories: [random-code-snippets, visualization, graphing, dendrogram]
+bibliography: refs.bib
+---
+
+I wanted to color the dendrogram edges according to their class in ggraph, and I was getting stuck because of something that isn't explicitly mentioned in the documentation, but is implied.
+**You must use "node." to access the data from the Node Data in the call to `aes(...)`**.
+
+Lets set it up.
+We will borrow from the "Edges" vignette in the ggraph package [@ggraphEdgesVignette].
+
+```{r setup_graph}
+library(ggraph)
+library(tidygraph)
+library(purrr)
+library(rlang)
+
+set_graph_style(plot_margin = margin(1,1,1,1))
+hierarchy <- as_tbl_graph(hclust(dist(iris[, 1:4]))) %>% 
+  mutate(Class = map_bfs_back_chr(node_is_root(), .f = function(node, path, ...) {
+    if (leaf[node]) {
+      as.character(iris$Species[as.integer(label[node])])
+    } else {
+      species <- unique(unlist(path$result))
+      if (length(species) == 1) {
+        species
+      } else {
+        NA_character_
+      }
+    }
+  }))
+
+hierarchy
+```
+
+And with this, we can create a dendrogram.
+
+```{r plot_dendrogram}
+ggraph(hierarchy, "dendrogram", height = height) +
+  geom_edge_elbow()
+```
+
+Nice!
+But what if we want the leaves colored by which "Class" they belong to?
+
+```{r plot_class}
+ggraph(hierarchy, "dendrogram", height = height) +
+  geom_edge_elbow2(aes(color = node.Class))
+```
+
+Note the differences in this function call compared to the previous:
+
+1. Using `geom_edge_elbow2` instead of `geom_edge_elbow`
+1. Using `node.Class`, not just `Class`. 
+
+The second point is really important!
+When you look at the `hierarchy` object printed above, the `Class` bit is part of the `Node Data`, which gets identified by `ggraph` by the prefix "node.".
+
+If we don't use `node.Class`, here is the error:
+
+```{r show_error, error = TRUE}
+ggraph(hierarchy, "dendrogram", height = height) +
+  geom_edge_elbow2(aes(color = Class))
+```

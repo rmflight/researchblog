@@ -1,0 +1,40 @@
+---
+title: "R CMD Check and Non-PDF Vignettes"
+subtitle: |
+  R CMD Check complaining about missing files? Here was my solution.
+date: 10-27-2021
+categories: [packages, random-code-snippets]
+editor_options: 
+  chunk_output_type: console
+bibliography: refs.bib
+---
+
+
+## R CMD Check
+
+If you've written an R package that you want hosted by CRAN (or even if not hosted), then you generally want to run the infamous `R CMD check` on your package.
+
+Although it can be a pain in the butt, it has a wide array of checks that make sense (and some that don't, just look at posts on the R-devel list).
+
+## Missing Files
+
+If you are using `rmarkdown` to generate non-standard vignettes, or even using `rmarkdown` because of features that aren't present directly in `knitr`, then the **check** process may fail after it re-builds the package.
+You may see this message:
+
+```
+Warning: Files in the 'vignettes' directory but no files in 'inst/doc':
+  ‘vignette_file.Rmd’
+```
+
+The solution, as far as I can tell, is to:
+
+* add both `knitr` and `rmarkdown` to the **Suggests** field of DESCRIPTION.
+* add **VignetteBuilder: knitr** to the DESCRIPTION.
+* add `%\VignetteEngine{knitr::rmarkdown}` to the vignette meta-data.
+* use **output: ...** whatever actual output document type you wanted in the vignette itself.
+
+I think that the **build** command only recognizes the `knitr` engine properly, and that is the only one that builds the vignettes and shoves them in the right location.
+
+Otherwise, you should build them manually and double check the options to **build** and **check** so that vignettes don't get rebuilt during either build or check.
+
+Depending on your needs, you might want to use something like Drew Schmidt's approach [@vignettelessarticles].

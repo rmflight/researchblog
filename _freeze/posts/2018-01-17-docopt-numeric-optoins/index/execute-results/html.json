@@ -1,0 +1,14 @@
+{
+  "hash": "aaf1fb4a209c185f8a29334520df6921",
+  "result": {
+    "markdown": "---\ntitle: \"docopt & Numeric Options\"\ndate: '2018-01-17'\ncategories: [R, development, programming, docopt]\nsubtitle: |\n  Every input is a string in docopt. Every Input!!\n---\n\n\n## TL;DR\n\nIf you use the `docopt` package to create command line `R` executables that take\noptions, there is something to know about numeric command line options: they should\nhave `as.double` before using them in your script.\n\n## Setup\n\nLets set up a new `docopt` string, that includes both string and\nnumeric arguments.\n\n\n::: {.cell}\n\n```{.r .cell-code}\n\"\nUsage:\n  test_numeric.R [--string=<string_value>] [--numeric=<numeric_value>]\n  test_numeric.R (-h | --help)\n  test_numeric.R\n\nDescription: Testing how values are passed using docopt.\n\nOptions:\n  --string=<string_value>  A string value [default: Hi!]\n  --numeric=<numeric_value>   A numeric value [default: 10]\n\n\" -> doc\n```\n:::\n\n::: {.cell}\n\n```{.r .cell-code}\nlibrary(methods)\nlibrary(docopt)\n\nscript_options <- docopt(doc)\n\nscript_options\n```\n:::\n\n\n```\n## List of 8\n##  $ --string : chr \"Hi!\"\n##  $ --numeric: chr \"10\"\n##  $ -h       : logi FALSE\n##  $ --help   : logi FALSE\n##  $ string   : chr \"Hi!\"\n##  $ numeric  : chr \"10\"\n##  $ h        : logi FALSE\n##  $ help     : logi FALSE\n## NULL\n```\n\nIt is very easy to see here, that the `numeric` argument is indeed a string, and\nif you want to use it as numeric, it should first be converted using `as.double`,\n`as.integer`, or even `as.numeric`.\n\n## Can't You Easily Tell It's Character?\n\nI just bring this up because I recently used `docopt` to provide interfaces to\nthree executables scripts, and I spent a lot of time `printing` the `doc` strings,\nand I somehow never noticed that the numeric values were actually character and\nneeded to be converted to a numeric first. Hopefully this will save someone else\nsome time in that regard.\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

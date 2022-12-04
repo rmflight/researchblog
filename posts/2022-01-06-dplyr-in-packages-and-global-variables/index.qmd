@@ -1,0 +1,41 @@
+---
+title: "Dplyr in Packages and Global Variables"
+subtitle: |
+  How to include dplyr in a package, and avoid warnings around global variables.
+date: 2022-01-06
+categories: [random-code-snippets, packages, dplyr, rlang, R, development]
+bibliography: refs.bib
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+I was recently cleaning up a development package so it would actually pass checks so it could be hosted on our labs new r-universe [@moseleyruniverse], and was getting warnings about global variables due to using `{dplyr}` operations, without {enquoting} variables.
+
+There are a few approaches to handling this.
+
+1. Using {utils::globalvariables} in an R file somewhere.
+1. Using {rlang::.data} and importing it into the package.
+
+I went with option **2**, see [@nobindingsolution].
+
+In the original version of `{dplyr}` and other packages like {ggplot2}, there was an option to use "string" arguments, normally by calling the {*_str} or {*_} version of a function name.
+
+That has gone out of fashion, and the way to do it now is to use the .data pronoun [@dplyrvignette].
+
+So now the code looks like this:
+
+```r
+# an example filtering operation
+dplyr::filter(.data$varname == "value")
+```
+
+The easiest way to include this correctly in your package, is by importing the {rlang::.data}.
+
+```r
+#' @importFrom rlang .data
+```
+
+And all the warnings should go away during package checking.

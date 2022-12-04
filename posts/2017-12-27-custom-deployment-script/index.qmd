@@ -1,0 +1,45 @@
+---
+title: "Custom Deployment Script"
+date: '2017-12-27'
+categories: [R, blogdown, development, random-code-snippets]
+subtitle: |
+  I don't want to use Netlify for hosting, so I came up with this simple script to deploy my blog.
+---
+
+## TL;DR
+
+Use a short bash script to do deployment from your own computer directly to your
+`*.github.io` domain.
+
+## Why?
+
+So Yihui recommends using Netlify, or even Travis-CI in the Blogdown book. I wasn't
+willing to setup a custom domain yet, and some of my posts involve a lot of personally
+created packages, etc, that I don't want to debug installation on Travis. So, I wanted
+a simple script I could call on my laptop that would copy the `/public` directory
+to the repo for my `github.io` site, and then push the changes.
+
+## The Script
+
+Here is the simple script I ended up using:
+
+```sh
+#!/bin/bash
+org_dir=`pwd`
+cd path/to/github.io/repo/
+#rm -rf *
+cp -Rfu path/to/blogdown/public/* .
+
+git add *
+commit_time=`date`
+git commit -m "update at $commit_time"
+git push origin master
+
+cd $org_dir
+```
+
+It changes directories, because to push from a `git` repo I'm pretty sure you
+need to be in the directory, so it also makes sure to go back there at the end.
+It then copies the contents of `/public` to the repo, `add`s all the files, and
+then uses the current time-stamp as the commit message, and finally pushes all
+the updates.

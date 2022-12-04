@@ -1,0 +1,71 @@
+---
+title: "Project Consultation Template"
+subtitle: |
+  What our labs project consult template looks like.
+date: 2022-02-08
+categories: [research]
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## Motivating Tweet
+
+A little while ago, I was tweeting about the joy of collaborating with people who haven't included you in their experimental design.
+One of the [tweets](https://twitter.com/rmflight/status/1490155702438219777?s=20&t=W4cx7JY3qDHEaJUpKjehyw) was this:
+
+```{r tweet_image, echo = FALSE, out.width = "80%"}
+knitr::include_graphics("tweet_about_projects.png")
+```
+
+I decided that I should follow up with our actual project consultation template.
+
+## Consultations?
+
+A large part of my work is collaborative projects where I do various -omics analyses for members of the cancer center I'm part of.
+As I'm sure many of you know, it's very important for us to capture the details of the experiments so we can figure out what actually needs to be done, and the most appropriate method.
+
+Internally, we use a self-hosted foswiki instance to keep lists of what needs to be done, document SOPs, and capture experimental details from collaborators.
+
+With every project we get asked to work on, we have a meeting, and who is at that meeting is usually determined by what kind of analysis the potential collaborator has asked for.
+
+## Template
+
+During that meeting, we fill in all the details of this template (which I translated to markdown from foswiki).
+Obviously, not all of the fields necessarily get filled out for each project, and sometimes other custom fields will get added.
+This template helps us capture the minimum information needed.
+
+```
+## Meeting Description
+  * Date/Time: 
+  * Length: 1 hour
+
+### Attendance
+  * 
+  * 
+
+### Meeting Purpose
+
+## Project Description
+
+### Overall Purpose
+
+### Implementation Timeline
+  * Design/Conceptualization:
+  * Experiment: 
+    * Start:  ; End:
+  * Sample Collection and Preparation:
+  * Data Collection:
+  * Data Analysis:
+
+### Experimental Design
+
+### Specific Data Analysis Questions
+
+## Conclusions
+
+### TODO
+
+```
