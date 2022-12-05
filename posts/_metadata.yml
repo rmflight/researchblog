@@ -29,3 +29,14 @@ author:
 
 # Default fields for citation
 citation: true
+
+comments:
+  giscus: 
+    repo: rmflight/researchblog
+    repo-id: R_kgDOIjZROQ
+    category: Announcements
+    category-id: DIC_kwDOIjZROc4CS6Xp
+    mapping: pathname
+    reactions-enabled: true
+    input-position: top
+    theme: dark
