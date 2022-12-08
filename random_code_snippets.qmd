@@ -3,6 +3,7 @@ title: "Random Code Snippets"
 listing:
   sort: "date desc"
   contents:
+    - "posts/2022-12-08-customizing-the-displayed-date-in-quarto-pubs/index.qmd"
     - "posts/2022-06-23-compiling-against-pythonh/index.qmd"
     - "posts/2022-01-31-heatmap-colormaps/index.qmd"
     - "posts/2022-01-06-cairo-and-xquartz-in-mac-github-actions/index.qmd"

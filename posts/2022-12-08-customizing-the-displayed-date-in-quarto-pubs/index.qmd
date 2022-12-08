@@ -1,0 +1,26 @@
+---
+title: "Customizing the Displayed Date in Quarto Pubs"
+subtitle: |
+  Making the date field more useful in quarto docs and publications.
+date: 2022-12-08
+categories: [quarto, R, random-code-snippets]
+---
+
+If you want to change how the date is displayed in your `{quarto}` documents, this is handy.
+
+One, decide **what** [date](https://quarto.org/docs/authoring/title-blocks.html#date) you want included:
+
+  * now
+  * today
+  * last-modified (this is my favorite, because I can tell if I've got the most recent version)
+  
+Then, you can change how the date is displayed using the `date-format`  [option](https://quarto.org/docs/reference/dates.html).
+
+My personal preference is for something like 2022-12-08 13:42, to avoid any ambiguity when I'm generating reports for others.
+
+```yaml
+---
+date: last-modified
+date-format: YYYY-MM-DD HH:mm
+---
+```
