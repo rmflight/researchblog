@@ -1,0 +1,82 @@
+---
+title: "targets and Child Documents"
+subtitle: |
+  How to make sure that main documents update when a child document is modified in a targets workflow.
+date: 2022-12-22
+categories: [random-code-snippets, quarto, rmarkdown, targets]
+editor_options: 
+       chunk_output_type: console
+---
+
+## TL;DR
+
+Make sure the child document is a target of the workflow, and that the child document target is loaded in the main.
+
+## The Setup
+
+So you've gone and decided to use the awesome `{targets}` workflow manager for your project, including generating your final reports.
+In a bid to keep things manageable, you are also using child documents.
+This allows you to keep different pieces of the report separated as needed.
+However, how do you make sure that `{targets}` knows that the main document needs to be re-rendered when the child document is modified?
+
+## The Workflow
+
+Our workflow for this example is **just** the child document and the main document.
+The child is **only** a file target (as opposed to a fully rendered document), because we just need to know if it changed or not, and not render it again before it gets included in the main.
+
+So, `_targets.R` looks something like this:
+
+```r
+tar_plan(
+  
+  tar_target(child_doc,
+             "path/to/child.qmd",
+             format = "file"),
+             
+  tar_quarto(main_doc,
+            "path/to/main.qmd")
+             
+)
+```
+
+## The Main
+
+In the main document we need to do two things:
+
+1. load the `child_doc` target,
+1. include the `child_doc` as an actual child document
+
+````
+
+```{{r}}
+#| label: setup
+library(targets)
+...
+```
+
+Some text ...
+
+```{{r}}
+#| label: load_targets
+tar_load(child_doc)
+```
+
+More text
+
+```{{r}}
+#| label: include_child
+#| child: !expr child_doc
+```
+
+Even more text
+
+````
+
+Notice the `!expr child_doc` in the second code block.
+We are taking advantage of the fact that the `child_doc` actually encodes the **location** of the child document, and the `!expr` is how we tell `{quarto}` that we want to evaluate an expression.
+
+## Include
+
+The `{quarto}` [docs](https://quarto.org/docs/authoring/includes.html) also suggest using `include`d documents.
+However, I don't know how those would work with the path of an object, and I don't really want to test it.
+Given we are using `tar_quarto` to control the rendering here, I think it is safer to use `child` over `include`.

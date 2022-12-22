@@ -5,7 +5,7 @@ subtitle: |
 date: 2022-12-03
 categories: [random-code-snippets, quarto]
 editor_options: 
-       chunk_output_type: console
+  chunk_output_type: console
 bibliography: refs.bib
 ---
 
