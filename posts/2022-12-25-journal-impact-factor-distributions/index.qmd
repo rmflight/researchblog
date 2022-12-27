@@ -1,0 +1,113 @@
+---
+title: "Journal Impact Factor Distributions"
+subtitle: |
+  Discovering that journal impact factor distributions are log-normal.
+date: 2022-12-25
+editor_options: 
+  chunk_output_type: console
+categories: [impact-factor]
+bibliography: refs.bib
+---
+
+## TL;DR
+
+Journal impact factor distributions seem to be log-normal.
+If we **decide** they should be used, then at the very least, they should be log-transformed before doing any calculations with them.
+
+## Journal Impact Factor
+
+At some point in history, someone decided that we could **measure** how important a journal is by the number of citations the manuscripts within it get.
+Of course this is ridiculous on it's face, but over time those journals with higher impact factors have become **more important** and **prestigous** to publish in.
+In fact, instead of judging each others work on the publications themselves, academia started doing this thing where we instead judge papers (and academics) by **where** they are published and the publications journal impact factors (JIF).
+Most publishers make a big deal out of announcing their journals JIF and report them to the 3rd decimal place.
+Stupid, I know, but here we are.
+Even more ridiculous, Thomson Reuters makes big money counting all of these citations, calculating the JIF and selling the data to others.
+
+## Larivi{\`e}re et al
+
+Way back in 2016, Larivi`ere et al published a nice paper on the distributions of journal impact factors and how to compare them [@Lariviere062109].
+I heartily recommend you check that publication out.
+I'm not going to discuss this manuscript in particular, except to note two things:
+
+1. that they provided a very nice description of how to acquire and calculate citation counts from a service such as Thomson Reuters Web of Science.
+1. when I look at their graphs, I thought they looked likely to be log-normal (see @fig-larivier-graph).
+
+```{r}
+#| label: fig-larivier-graph
+#| fig-cap: "Figure 1 from Lariviere et al: Citation distributions of 11 different science journals. Citations are to citable documents as classified by Thomson Reuters, which include standard research articles and reviews. The distributions contain citations accumulated in 2015 to citable documents published in 2013 and 2014 in order to be comparable to the 2015 JIFs published by Thomson Reuters. To facilitate direct comparison, distributions are plotted with the same range of citations (0-100) in each plot; articles with more than 100 citations are shown as a single bar at the right of each plot."
+#| echo: false
+knitr::include_graphics("leviervre-F1.large.jpg")
+```
+
+## Getting Data
+
+Unfortunately, Larivi{\`e}re et al didn't provide their data.
+Which makes sense, it's from a closed source.
+However, I used their description of getting the data from Web of Science, and went and created my own version of the data for a set of journals so I could do my own analysis.
+
+Following the guide provided in the Appendix of [@Lariviere062109], I went into Web Of Science and produced citation reports for 7 journals (eLife, EMBO Journal, Nature, Nature Communications, PLOS Biology, PLOS Genetics, and Science), and saved them. 
+Unfortunately, the preprint shows data for publications published in 2013-2014, but the guide showed 2012-2013, so I ended up downloading the citation data for publications published in 2012-2013, which would have influenced the 2014 JIF.
+However, I think the conclusions are the same.
+
+If you want the original data I acquired, you can go check out [@Flight2021].
+
+## Raw Plots
+
+So lets load up the data and plot the citation counts for each journal, as shown in @fig-raw-counts.
+
+```{r}
+#| label: fig-raw-counts
+#| fig-cap: Raw citation counts for chosen journals for 2012-2013.
+#| echo: false
+#| message: false
+library(ggplot2)
+theme_set(cowplot::theme_cowplot())
+citation_counts = readRDS("citation_data.rds")
+raw_summary = dplyr::group_by(citation_counts, Source.Title) |>
+  dplyr::summarise(mean = mean(X2014),
+                   median = median(X2014)) |>
+  tidyr::pivot_longer(!Source.Title, names_to = "summary")
+citation_counts |>
+  ggplot(aes(x = X2014)) +
+  geom_histogram(bins = 100) +
+  geom_vline(data = raw_summary,
+             aes(xintercept = value, color = summary)) +
+  facet_wrap(~ Source.Title, ncol = 2, scales = "free") +
+  theme(legend.position = c(0.8, 0.1))
+```
+
+I think these still look pretty similar to those shown in @fig-larivier-graph.
+We can see that the means are heavily influenced by the very long tails in these graphs.
+
+## Log Transform
+
+Now, lets log-transform them, and calculate summary statistics on the log-transformed data, as shown in @fig-log-counts.
+
+```{r}
+#| label: fig-log-counts
+#| fig-cap: Log citation counts for chosen journals for 2012-2013
+#| echo: false
+#| message: false
+log_summary = dplyr::group_by(citation_counts, Source.Title) |>
+  dplyr::summarise(mean_log = mean(log1p(X2014)),
+                   median_log = median(log1p(X2014))) |>
+  tidyr::pivot_longer(!Source.Title, names_to = "summary")
+ggplot(citation_counts, aes(x = log1p(X2014))) + 
+  geom_histogram(bins = 100) +
+  geom_vline(data = log_summary,
+             aes(xintercept = value, color = summary)) +
+  facet_wrap(~ Source.Title, ncol = 2, scales = "free") +
+  theme(legend.position = c(0.8, 0.1))
+```
+
+These look much more normal, at least for some of the heavily cited journals like Nature and Science.
+
+So, if we are going to continue using these kinds of metrics, we should either adopt the metrics that Larivi`ere propose, or at the very least log-transform the citation counts.
+
+Or we could drop them altogher.
+
+
+### Note
+
+I originally did this little analysis back in 2021-02-04, and discussed it on Twitter then.
+I came across it again today, and thought it deserved it's own spot in the blog.
