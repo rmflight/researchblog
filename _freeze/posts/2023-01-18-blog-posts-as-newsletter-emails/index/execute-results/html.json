@@ -1,0 +1,14 @@
+{
+  "hash": "ee233dfae48b81329ebcc3a37ff1fefe",
+  "result": {
+    "markdown": "---\ntitle: \"blog posts as newsletter emails\"\nsubtitle: |\n  With the new blog2newsletter, you can have email subscribers to your blog controlled\n  by R thanks to gmailr and googlesheets4.\ndate: 2023-01-18\ncategories: [R, newsletter]\neditor_options: \n  chunk_output_type: console\nbibliography: refs.bib\n---\n\n\n\n\n## TL;DR\n\nWant to be able to have people subscribe to your blog via email?\nCheck out the `{blog2newsletter}` package on GitHub [@blog2newsletter].\n\n## A Newsletter? Really?\n\nOK, so hear me out.\nFor some reason, if a newsletter shows up in my email inbox, I'm much more likely to read it.\nFor example, I subscribe to Bob Rudis awesome Daily Drops [@dailydrop], and they almost always get read right when they come in\nLet's be honest, SubStack has definitely made email newsletters popular.\nHowever, while I'm interested in making my blog available to people in other ways, I'm not going to use something like SubStack's platform to do it.\n\n## The Power of R to the Rescue!\n\nNow, I'll admit, Google is another \"platform\", but it's one with a well known and documented API, with awesome R packages to interact with the APIs.\nFor example, `{gmailr}` lets us compose, draft, and send emails from our GMail accounts [@gmailr].\n`{googlesheets4}` provides access to Google Sheets, like those used to store reponses to Google Forms [@googlesheets4].\n\nWith these packages, we can cobble together another package that provides functions to send blog posts as email newsletters!\nAnd thus my holiday break project was born!\n",
+    "supporting": [],
+    "filters": [
+      "rmarkdown/pagebreak.lua"
+    ],
+    "includes": {},
+    "engineDependencies": {},
+    "preserve": {},
+    "postProcess": true
+  }
+}

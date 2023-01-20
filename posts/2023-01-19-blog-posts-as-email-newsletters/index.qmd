@@ -1,0 +1,133 @@
+---
+title: "Blog Posts as Email Newsletters"
+subtitle: |
+  With the new blog2newsletter, you can have email subscribers to your blog controlled
+  by R thanks to gmailr, googlesheets4, and tidyRSS.
+date: 2023-01-19
+categories: [R, newsletters]
+editor_options: 
+  chunk_output_type: console
+bibliography: refs.bib
+---
+
+```{r}
+#| label: setup
+#| include: false
+#| echo: false
+knitr::opts_chunk$set(message = FALSE,
+                      warning = FALSE)
+
+```
+
+## TL;DR
+
+Want to be able to have people subscribe to your blog via email?
+Check out the `{blog2newsletter}` package on GitHub [@blog2newsletter].
+
+## A Newsletter? Really?
+
+OK, so hear me out.
+For some reason, if a newsletter shows up in my email inbox, I'm much more likely to read it.
+For example, I subscribe to Bob Rudis awesome Daily Drops [@dailydrop], and they almost always get read right when they come in
+Let's be honest, SubStack has definitely made email newsletters popular.
+However, while I'm interested in making my blog available to people in other ways, I'm not going to use something like SubStack's platform to do it (Bob Rudis has frequently complained about the formatting options in the SubStack editor, for instance).
+
+## The Power of R to the Rescue!
+
+Now, I'll admit, Google is another "platform", but it's one with a well known and documented API, with awesome R packages to interact with the APIs.
+For example, `{gmailr}` lets us compose, draft, and send emails from our GMail accounts [@gmailr].
+`{googlesheets4}` provides access to Google Sheets, like those used to store reponses to Google Forms [@googlesheets4].
+
+With these packages, we can cobble together another package that provides functions to send blog posts as email newsletters!
+And thus my holiday break project was born!
+
+Caveats, I don't know the API limits for GMail, but I'm sure there isn't really a limit to how many people can be `bcc'ed` on a single email.
+Also, Google could theoretically shut down API access to GMail and Google Sheets tomorrow, but that seems really, really unlikely.
+
+## blog2newsletter Package
+
+It's taken longer than I wanted to finish it off, but I think `{blog2newsletter}` is finally ready for primetime (and if you are one of the two subscribers to my blog, then you know it is because you received this post as an email) [@blog2newsletter].
+The [README](https://rmflight.github.io/blog2newsletter/) of the package goes into great detail of how to set up all the prerequisites and use it.
+
+The basic workflow, is this:
+
+* have a blog with an RSS feed with full posts included in the RSS (default for `{quarto}` blogs with RSS enabled);
+* have a Google project that you have the secrets for;
+* authorize `{gmailr}` and `{googlesheets4}` to access the Google API for your Google project;
+* have a Google Sheet storing subscriber information from a Google Form (like [this form](https://forms.gle/yEJ8gdzPHLQUmzpdA));
+* create a script that checks for subscribers, gets the post, and composes and sends the email.
+
+The package doesn't have that many functions, honestly.
+I'm very thankful that `{gmailr}` and `{googlesheets4}` handled all the Google specific stuff, and then `{tidyRSS}` provides all the functionality I needed for taking a blog post and putting it in a format that emails nicely [@tidyrss]!
+
+The use of `{tidyrss}` also means that you don't have to actually use an R based blogging platform either to use `{blog2newsletter}`!
+You just need an RSS feed with the full posts in it!
+That can be a local file in the case of a statically generated blog, or the URL of your RSS feed for something generated / hosted by WordPress, for example.
+
+The other major consideration was being able to cache a local copy of the subscriber list, as well as what newsletters were previously sent so that you don't accidentally resend the same blog post 20 times.
+We use simple `rds` files in a cache directory for this.
+
+## Example Script
+
+Here I'm going to break down the example script `_blog2newsletter.R` from the README.
+In a real directory / project being used to manage this, this is what we would run using `b2n_run()`.
+
+At the top, we load the needed packages, and set a bunch of variables, including where the Google project secrets are stored, and where `{gargle}` should be putting the oauth tokens, and then loading the authorization tokens:
+
+```r
+library(gmailr)
+library(googlesheets4)
+library(blog2newsletter)
+secrets_path = "secrets/client_secret_file_googleusercontent.com.json"
+oauth_cache = "secrets/gargle_cache/"
+
+# don't forget to use your actual email
+my_gmail = "my-gmail@gmail.com"
+
+options(
+  gargle_oauth_cache = oauth_cache,
+  gargle_oauth_email = secrets_path
+)
+
+gm_auth_configure(path  = secrets_path)
+gm_auth(scopes = c("compose", "send"), 
+        email = my_gmail)
+
+gs4_auth_configure(path = secrets_path)
+gs4_auth(
+  scopes = "https://www.googleapis.com/auth/spreadsheets.readonly",
+  email = my_gmail)
+```
+
+The bottom half starts with setting a variable for the blog directory (for `{quarto}` blogs) or alternatively where to find the RSS file directly.
+Then setting the Google Sheet id and grabbing the subscribers.
+Finally, what should be pre-pended to the email subject before the blog post title.
+
+```r
+# switch from directory, full path to index.xml, or url as needed
+blog_dir = "blog/directory"
+
+subscribers_id = "your-sheet-id"
+subscriber_data = b2n_fetch_subscribers(subscribers_id)
+
+# newsletter subject
+extra_subject = "my newsletter"
+
+blog_dir |>
+  b2n_post_to_email() |>
+  b2n_add_subscribers(subscriber_data) |>
+  b2n_from(my_gmail) |>
+  b2n_add_subject(extra_subject) |>
+  b2n_send_newsletter()
+```
+
+If you want to see what the composed email looks like **before** sending it, then you can use the `b2n_draft_email` instead of `b2n_send_newsletter`, and if you've got the right authorizations setup, then the email will show up in your GMail drafts.
+
+## Semi-Automatic
+
+Finally, something like this would be a pain to type all that out everytime you wanted to send a new newsletter.
+This is part of the reason the default post to grab is the **latest** post that is available in the RSS feed.
+With that, it's trivial to have a single script that is run each time you want to send out your latest available blog post.
+To help with this, there is the `b2n_run` function, that by default looks for `_blog2newsletter.R`, and `source`'s it.
+
+Therefore, you just need a project / directory for the subscription management, with the cache and the above script, and when you have a new blog post up, just do `blog2newsletter::b2n_run()`, and the post will be sent out if there are subscribers with matching categories.

@@ -4,9 +4,12 @@ project:
 website:
   title: "Deciphering Life: One Bit at a Time"
   site-url: "https://rmflight.github.io"
+  favicon: static/img/robertmflight_square.jpg
   navbar:
     right:
       - about.qmd
+      - text: Subscribe
+        href: https://docs.google.com/forms/d/e/1FAIpQLSfCHWeFjznvcoPs_zge3fPO3AaRs1WgmyDwi9lREGNSBybWhA/viewform?usp=sf_link
       - text: RCS
         href: https://rmflight.github.io/#category=random-code-snippets
       - icon: github
