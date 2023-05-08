@@ -1,0 +1,15 @@
+---
+title: "Testing Meta Data"
+subtitle: |
+  Me testing if metadata can be extracted properly.
+date: 2023-02-24
+categories: []
+editor_options: 
+  chunk_output_type: console
+bibliography: refs.bib
+---
+
+
+create email link <a href="mailto:{{< meta email >}}?subject=Blog post: {{< meta title >}}">Email me feedback!</a>
+This is a test to see if email {{< meta email >}} and title {{< meta title >}} will show up properly. 
+

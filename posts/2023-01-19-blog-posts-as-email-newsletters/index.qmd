@@ -28,7 +28,7 @@ Check out the `{blog2newsletter}` package on GitHub [@blog2newsletter].
 
 OK, so hear me out.
 For some reason, if a newsletter shows up in my email inbox, I'm much more likely to read it.
-For example, I subscribe to Bob Rudis awesome Daily Drops [@dailydrop], and they almost always get read right when they come in
+For example, I subscribe to Bob Rudis awesome Daily Drops [@dailydrop], and they almost always get read right when they come in.
 Let's be honest, SubStack has definitely made email newsletters popular.
 However, while I'm interested in making my blog available to people in other ways, I'm not going to use something like SubStack's platform to do it (Bob Rudis has frequently complained about the formatting options in the SubStack editor, for instance).
 
