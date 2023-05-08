@@ -33,13 +33,13 @@ From the help page:
 > Creates a modified version of .f that always succeeds. It returns a list with components result and error. If the function succeeds, result contains the returned value and error is NULL. If an error occurred, error is an error object and result is either NULL or otherwise.
 
 As you can imagine, this is incredibly useful for handling error conditions without explicitly handling it within your own function.
-By the way, it is worth looking at the help page for {purrr::safely} just to see all the adverbs that {purrr} provides, some may be useful for you in other contexts.
+By the way, it is worth looking at the help page for `{purrr::safely}` just to see all the adverbs that `{purrr}` provides, some may be useful for you in other contexts.
 
 ## The Issue
 
 So, what happens if you try to use `{purrr::safely}` to modify a user defined function from within a `{targets}` workflow?
 It turns out, you have to be very careful **how** you incorporate `{purrr::safely}` into your workflow.
-If you do it wrong, then {targets} can't tell you changed the underlying function, and won't rerun the workflow.
+If you do it wrong, then `{targets}` can't tell you changed the underlying function, and won't rerun the workflow.
 I do want to thank Neil Wright for bringing this up on Mastodon, as it's not obvious what the best solution is or **why** this happens [@neilpost].
 I also note that Neil does post the solution in their next post.
 
