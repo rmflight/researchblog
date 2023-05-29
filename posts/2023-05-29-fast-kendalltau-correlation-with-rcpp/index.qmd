@@ -1,0 +1,401 @@
+---
+title: "Fast Kendall-tau Correlation with Rcpp"
+subtitle: |
+  How we created a fast implementation of Kendall-tau using Rcpp
+date: 2023-05-29
+categories: [c++, R, packages,]
+editor_options:
+  chunk_output_type: console
+bibliography: refs.bib
+---
+
+## TL;DR
+
+Check out our `{ICIKendallTau}` R package if you want access to a fast version of Kendall-tau correlation in R [@iciktflight] with only a few dependencies.
+
+```{r}
+#| label: setup
+# remotes::install_github("moseleybioinformaticslab/icikendalltau)
+# install.packages("microbenchmark")
+library(ICIKendallTau)
+```
+
+## Kendall Tau??
+
+Yes, Kendall-tau correlation!
+It is a rank based correlation based on the number of concordant and discordant **pairs** of points.
+This graphic from Wikipedia explains it really well [@kendallwikipedia].
+
+```{r}
+#| label: fig-wikipedia-points
+#| fig-cap: "All points in the gray area are concordant and all points in the white area are discordant with respect to point X1, Y1. With n = 30 points, there are a total of 435 possible point pairs. In this example there are 395 concordant point pairs and 40 discordant point pairs, leading to a Kendall rank correlation coefficient of 0.816. [@kendallfigure]"
+knitr::include_graphics("Concordant_Points_Kendall_Correlation.svg")
+```
+
+This is a really useful correlation to use if you don't want to have to worry about how linearly related things are, just whether the points from two samples go in the same direction or not.
+In addition, we think there is a neat variant we can make to incorporate the presence of missing values when they are missing not at random, and we have a preprint on that that I am working on revising [@flightInformationContentInformedKendalltauCorrelation2022a].
+
+## Need for Speed!
+
+However, there is an issue with the basic Kendall-tau algorithm.
+It is slower than molasses going uphill in January (as my parents used to say).
+Especially as we increase to correlations calculated using tens of thousands of features in both *x* and *y*.
+
+```{r}
+#| label: check-base-speed
+x_large = rnorm(10000)
+y_large = rnorm(10000)
+microbenchmark::microbenchmark(cor(x_large, y_large, method = "kendall"),
+                               times = 20)
+```
+
+That took a full second!
+And the size of things we frequently want to calculate for eukaryotic based transcriptomics are 2X - 4X that size, and across many, many samples.
+
+So if we can speed it up, that would be awesome.
+
+I will note through all of this work, that I've already been through this once in the development of our `{ICIKendallTau}` package, so I already know the answer.
+However, I felt it would be useful to work through all of this again to help others who might be looking at similar types of problems.
+And yes, some of the below code seems silly, but they are first stabs at an implementation.
+
+## Differences of Signs
+
+The simplest way to find the concordant and discordant pairs is to generate all the possible pair indices of the points, and then compare their directions; the same direction of a pair in both X and Y means they are concordant, and different directions means they are discordant.
+
+And in fact, that is exactly what is happening in the C code for R's covariance / correlation code, iterating over each pair of points (`k` and `n1`; snippet shown here from lines 108 - 118 of file src/library/stats/src/cov.c in R-4.3.0).
+
+```c
+else { /* Kendall's tau */                      \
+    for(n1=0 ; n1 < k ; n1++)                   \
+        if(!(ISNAN(xx[n1]) || ISNAN(yy[n1]))) { \
+            xm = sign(xx[k] - xx[n1]);          \
+            ym = sign(yy[k] - yy[n1]);          \
+                                                \
+            COV_SUM_UPDATE                      \
+        }                                       \
+}                                               \
+```
+
+### R Based, Copy All Pairs
+
+What can we do in R that is similar?
+We can generate all the pairwise indices, create actual vectors, and then get the signs of the differences maybe?
+
+```{r}
+#| label: reference-r
+reference_ici = function(x, y)
+{
+  n_x = length(x)
+  n_y = length(y)
+  pairs = combn(n_x, 2)
+  x_pairs = rbind(x[pairs[1, ]],
+                  x[pairs[2, ]])
+  y_pairs = rbind(y[pairs[1, ]],
+                  y[pairs[2, ]])
+  x_sign = sign(x_pairs[1, ] - x_pairs[2, ])
+  y_sign = sign(y_pairs[1, ] - y_pairs[2, ])
+  x_y_sign = x_sign * y_sign
+  sum_concordant = sum(x_y_sign > 0)
+  sum_discordant = sum(x_y_sign < 0)
+  
+  x_is_dup = duplicated(x)
+  x_dup = x[x_is_dup]
+  x_tied_values_t1 = table(x_dup) + 1;
+  y_is_dup = duplicated(y)
+  y_dup = y[y_is_dup]
+  y_tied_values_t2 = table(y_dup) + 1
+  
+  x_tied_sum_t1 = sum(x_tied_values_t1 * (x_tied_values_t1 - 1)) / 2
+  y_tied_sum_t2 = sum(y_tied_values_t2 * (y_tied_values_t2 - 1)) / 2
+  t_0 = n_x * (n_x - 1) / 2
+  
+  k_denominator = sqrt((t_0 - x_tied_sum_t1) * (t_0 - y_tied_sum_t2))
+  k_numerator = sum_concordant - sum_discordant
+  
+  k_tau = k_numerator / k_denominator
+  
+  k_tau
+}
+```
+
+Let's see how long this takes as a baseline, and how it compares to the `{stats::cor}` function.
+
+```{r}
+#| label: benchmark-reference
+set.seed(1234)
+x = rnorm(1000)
+y = rnorm(1000)
+microbenchmark::microbenchmark(cor(x, y, method = "kendall"),
+                               reference_ici(x, y),
+                               times = 20)
+```
+
+Not so great.
+Not that surprising, given the main correlation algorithm in R is written in C.
+Let's see if we can speed that up.
+Although our code **seems** vectorized here, there is significant time taken in creating the large matrices to hold the pair indices, and then create the pairs themselves.
+Therefore, if we can avoid the creation of those large matrices, we can probably improve the speed.
+
+### R Based, Increment Count
+
+```{r}
+#| label: iterators-r
+iterators_ici = function(x, y)
+{
+  n_entry = length(x)
+  sum_concordant = 0
+  sum_discordant = 0
+  for (i in seq(1, n_entry - 1)) {
+    for (j in seq(i + 1, n_entry)) {
+      sum_concordant = sum_concordant +  ((sign(x[i] - x[j]) * sign(y[i] - y[j])) > 0)
+      sum_discordant = sum_discordant + ((sign(x[i] - x[j]) * sign(y[i] - y[j])) < 0)
+    }
+  }
+  k_numerator = sum_concordant - sum_discordant
+  
+  x_is_dup = duplicated(x)
+  x_dup = x[x_is_dup]
+  x_tied_values_t1 = table(x_dup) + 1;
+  y_is_dup = duplicated(y)
+  y_dup = y[y_is_dup]
+  y_tied_values_t2 = table(y_dup) + 1
+  
+  x_tied_sum_t1 = sum(x_tied_values_t1 * (x_tied_values_t1 - 1)) / 2
+  y_tied_sum_t2 = sum(y_tied_values_t2 * (y_tied_values_t2 - 1)) / 2
+  t_0 = n_entry * (n_entry - 1) / 2
+  
+  k_denominator = sqrt((t_0 - x_tied_sum_t1) * (t_0 - y_tied_sum_t2))
+  k_numerator = sum_concordant - sum_discordant
+  
+  k_tau = k_numerator / k_denominator
+  
+  k_tau
+}
+```
+
+```{r}
+#| label: benchmark-iterators
+microbenchmark::microbenchmark(cor(x, y, method = "kendall"),
+                               reference_ici(x, y),
+                               iterators_ici(x, y),
+                               times = 20)
+```
+
+Allright!
+We've got some decent improvement over our base attempt.
+We also know, thanks to the SciPy project, that there is a better way to do get the number of concordant and discordant pairs (which is what we use in `{ICIKendallTau}`).
+Let's see if we can manage that in pure R, and see if it helps us out any.
+
+### R Based, Sort
+
+```{r}
+#| label: fast-method-r
+sort_ici = function(x, y)
+{
+
+  get_sort = function(values)
+  {
+    value_order = order(values, method = "radix")
+  }
+  
+  compare_self = function(x){
+    n_entry = length(x)
+    match_self = vector("integer", n_entry)
+    match_self[1] = 1L
+  
+    idx = 2
+  
+    for (i in seq(2, n_entry)) {
+      if (x[i] != x[(i - 1)]) {
+        match_self[idx] = 1L;
+      } else {
+        match_self[idx] = 0L;
+      }
+      idx = idx + 1
+    }
+    return(match_self)
+  }
+  
+  compare_both = function(x, y)
+  {
+    n_entry = length(x)
+    match_self = vector("integer", n_entry + 1)
+    match_self[1] = 1L
+    
+    idx = 2
+    
+    for (i in seq(2, n_entry)) {
+      if ((x[i] != x[(i - 1)]) || (y[i] != y[(i - 1)])) {
+        match_self[idx] = 1L
+      } else {
+        match_self[idx] = 0L
+      }
+      idx = idx + 1
+    }
+    match_self[n_entry + 1] = 1
+    return(match_self)
+  }
+
+  count_rank_tie = function(ranks)
+  {
+  
+    dup_ranks = duplicated(ranks)
+    ranks2 = ranks[dup_ranks]
+    number_tied = table(ranks2) + 1
+    
+    return(list(ntie = sum(number_tied * (number_tied - 1)) / 2,
+                t0 = sum(number_tied * (number_tied - 1) * (number_tied - 2)) / 2,
+                t1 = sum(number_tied * (number_tied - 1) * (2 * number_tied + 5))))
+  }
+  
+  which_notzero = function(x){
+    notzero = vector("integer", length(x))
+    idx = 1L
+    
+    for (i in seq(1, length(x))) {
+      if (x[i] != 0) {
+        notzero[idx] = i - 1
+        idx = idx + 1L
+      }
+    }
+    keep_loc = seq(1, idx - 1)
+    notzero = notzero[keep_loc]
+    return(notzero)
+  }
+  
+  kendall_discordant = function(x, y){
+    #x = x4
+    #y = y4
+    sup = 1 + max(y)
+    
+    arr = vector("integer", sup)
+    i = 0
+    k = 0
+    n = length(x)
+    idx = 1L
+    dis = 0
+    
+    while (i < n) {
+      while ((k < n) && (x[i + 1] == x[k + 1])) {
+        dis = dis + i
+        idx = y[k + 1]
+        while (idx != 0) {
+          dis = dis - arr[idx + 1]
+          idx = bitwAnd(idx, idx - 1)
+        }
+        k = k + 1
+      }
+      while (i < k) {
+        idx = y[i + 1]
+        while (idx < sup) {
+          arr[idx + 1] = arr[idx + 1] + 1
+          idx = idx + bitwAnd(idx, (-1*idx))
+        }
+        i = i + 1
+      }
+    }
+    dis
+  }
+
+
+  n_entry = length(x)
+  perm_y = get_sort(y)
+  x = x[perm_y]
+  y = y[perm_y]
+  y3 = compare_self(y)
+  y4 = cumsum(y3)
+  
+  perm_x = get_sort(x);
+  x = x[perm_x]
+  y4 = y4[perm_x]
+  x3 = compare_self(x)
+  x4 = cumsum(x3)
+  
+  obs = compare_both(x4, y4)
+  sum_obs = sum(obs)
+  cnt = diff(which_notzero(obs))
+  dis = kendall_discordant(x4, y4)
+  
+  ntie = sum((cnt * (cnt - 1)) / 2)
+  x_counts = count_rank_tie(x4)
+  xtie = x_counts[[1]]
+  x0 = x_counts[[2]]
+  x1 = x_counts[[3]]
+  
+  y_counts = count_rank_tie(y4)
+  ytie = y_counts[[1]]
+  y0 = y_counts[[2]]
+  y1 = y_counts[[3]]
+  
+  tot = (n_entry * (n_entry - 1)) / 2
+  con_minus_dis = tot - xtie - ytie + ntie - 2 * dis
+  tau = con_minus_dis / sqrt((tot - xtie) * (tot - ytie))
+  return(tau)
+}
+```
+
+```{r}
+#| label: benchmark-sort
+microbenchmark::microbenchmark(cor(x, y, method = "kendall"),
+                               reference_ici(x, y),
+                               iterators_ici(x, y),
+                               sort_ici(x, y),
+                               times = 20)
+```
+
+So, I thought I could implement the sorting method in R, and it would help.
+It helps, in that it looks like it gets back to C speed, in R.
+Which isn't bad, but still isn't great.
+This is more than likely because I don't actually understand the sort based Kendall-tau algorithm on a theoretical level.
+I was able to copy it from the Python into `{Rcpp}`, and use a lot of debugging and test cases to make sure I had it implemented correctly, but there are things it is doing that I don't understand algorithmically, which means I don't know the best way to create an R-centric method for them.
+For this example, I literally just translated my previous `{Rcpp}` code into R, which of course doesn't necessarily make for fast code.
+
+### C++ Based, Differences
+
+As a reference, I also implemented the iterating differences algorithm in `{Rcpp}`.
+Note that this is not meant to be called by normal users of `{ICIKendallTau}`, we have it there as a reference to make sure that everything else is working properly.
+
+```{r}
+#| label: benchmark-rcpp-diff
+microbenchmark::microbenchmark(cor(x, y, method = "kendall"),
+                               reference_ici(x, y),
+                               iterators_ici(x, y),
+                               sort_ici(x, y),
+                               ICIKendallTau:::ici_kt_pairs(x, y),
+                               times = 20)
+```
+
+We can see that is faster than the C-based `cor` by maybe 2X for 1000 long vectors.
+Given that `ici_kt_pairs` has only the single iterator logic for the one correlation method, that makes sense.
+
+### C++ Based, Sort
+
+Let's compare the actual sort-based function that is implemented in the `{ICIKendallTau}` package (which you can see in [@iciktcode]).
+
+```{r}
+#| label: benchmark-rcpp
+microbenchmark::microbenchmark(cor(x, y, method = "kendall"),
+                               reference_ici(x, y),
+                               iterators_ici(x, y),
+                               sort_ici(x, y),
+                               ici_kt(x, y),
+                               times = 20)
+```
+
+That's fast!
+Notice the time moved from *milliseconds* to *microseconds*, and the `{ICIKendallTau}` version is ~ 50X faster than the base R version.
+Let's increase the size of our vectors by 10X and compare the run times again.
+
+```{r}
+#| label: benchmark-large
+x_large = rnorm(10000)
+y_large = rnorm(10000)
+microbenchmark::microbenchmark(cor(x, y, method = "kendall"),
+                               cor(x_large, y_large, method = "kendall"),
+                               ici_kt(x, y),
+                               ici_kt(x_large, y_large),
+                               times = 20)
+```
+
+The base R method increases time taken by 100X, but the sort based method of `{ICIKendallTau}` increases only 10X.
+This is the advantage of the sort method, it's complexity is $\mathcal{O}(n\log{}n))$, *vs* $\mathcal{O}(n^2)$.

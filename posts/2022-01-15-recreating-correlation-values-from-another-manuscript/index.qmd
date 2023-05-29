@@ -3,7 +3,7 @@ title: "Recreating Correlation Values from Another Manuscript"
 subtitle: |
   Documenting my journey trying to recreate some correlations calculated in another manuscript.
 date: 2022-01-15
-categories: [reproducibility]
+categories: [reproducibility, correlation]
 bibliography: refs.bib
 ---
 
