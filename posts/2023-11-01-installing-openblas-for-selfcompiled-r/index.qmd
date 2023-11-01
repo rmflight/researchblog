@@ -1,0 +1,91 @@
+---
+title: "Installing OpenBLAS for self-compiled R"
+subtitle: |
+  How to compile, and make sure a self-compiled R uses OpenBLAS, which may be faster than the installed one.
+date: 2023-11-01
+categories: [R, profiling, openblas]
+editor_options:
+  chunk_output_type: console
+---
+
+## TL;DR
+
+When you compile R from scratch on Linux, it doesn't use the system BLAS libraries, it uses one that is compiled itself.
+This BLAS library may be rather slow.
+If you want to compile and use OpenBLAS, you then tell R to use the newly compiled library.
+
+## Compiling & Installing OpenBLAS
+
+Clone and compile OpenBLAS.
+If you've already compiled R on this machine, it should have all of the pre-requisites already installed.
+
+```bash
+# get it
+cd ~/software
+git clone https://github.com/xianyi/OpenBLAS
+```
+
+We are going to compile it in multi-threaded mode (`USE_THREAD=1`), and to use a dynamic architecture, where it will have the *gotoblas* symbols included (`DYNAMIC_ARCH=1`).
+
+```bash
+# compile it
+cd OpenBLAS
+make -j USE_THREAD=1 DYNAMIC_ARCH=1
+```
+
+You should see test output here, that indicates everything is OK.
+
+Now we create a directory to install OpenBLAS into.
+For my purposes, this is still going to be in `~/software`.
+
+```bash
+# install it
+mkdir ~/software/libOpenBLAS
+make -j PREFIX=~/software/libOpenBLAS USE_THREAD=1 DYNAMIC_ARCH=1
+```
+
+## Telling R To Use It
+
+If you've compiled your own version of R, it should be using it's own internal BLAS and LAPACK libraries.
+You can see this using `sessionInfo()`.
+
+```r
+sessionInfo()[c("BLAS", "LAPACK")]
+
+# mine shows
+# > $BLAS
+# > [1] "/software/R-4.3.0/lib/libRblas.so"
+#
+# > $LAPACK
+# > [1] "/software/R-4.3.0/lib/libRlapack.so"
+```
+
+So, now we want to backup the BLAS library, and then link it to our compiled OpenBLAS.
+
+```bash
+cp ~/software/R-4.3.0/lib/libRblas.so ~/software/R-4.3.0/lib/libRblas.so.backup
+```
+
+```sh
+ln -snf ~/software/libOpenBLAS/lib/libopenblas.so ~/software/R-4.3.0/lib/libRblas.so
+```
+
+When you start R again, you should now see that it is using a different BLAS & LAPACK library.
+
+```r
+sessionInfo()[c("BLAS", "LAPACK")]
+
+# mine shows
+# > $BLAS
+# > [1] "~/software/libOpenBLAS/lib/libopenblas.so"
+#
+# > $LAPACK
+# > [1] "~/software/libOpenBLAS/lib/libopenblas.so"
+```
+
+## Why?
+
+The default BLAS and LAPACK libraries that ship with R are not the most efficient versions.
+There are decent comparisons on the internet showing substantial speedups depending on the task you are performing.
+In my particular case, I have observed a speedup of 10X when doing a single-value-decomposition on moderately sized matrices (1600 x 1600).
+Given what I'm doing, that is definitely worth it.
