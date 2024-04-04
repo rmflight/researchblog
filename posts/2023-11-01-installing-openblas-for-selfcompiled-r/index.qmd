@@ -41,7 +41,7 @@ For my purposes, this is still going to be in `~/software`.
 ```bash
 # install it
 mkdir ~/software/libOpenBLAS
-make -j PREFIX=~/software/libOpenBLAS USE_THREAD=1 DYNAMIC_ARCH=1
+make -j PREFIX=~/software/libOpenBLAS USE_THREAD=1 DYNAMIC_ARCH=1 install
 ```
 
 ## Telling R To Use It
