@@ -28,7 +28,7 @@ All opinions are my own and do not reflect those of my employer or the universit
 
 ## Me
 
-I'm a senior research associate in bioinformatics at the [Moseley Bioinformatics and Systems Biology Lab](https://bioinformatics.cesb.uky.edu/), which is part of the [Markey Cancer Center](https://ukhealthcare.uky.edu/markey-cancer-center) at the [University of Kentucky](http://www.uky.edu/). 
+I'm a senior research associate in bioinformatics at the [Moseley Bioinformatics and Systems Biology Lab](https://moseleybioinformaticslab.org/), which is part of the [Markey Cancer Center](https://ukhealthcare.uky.edu/markey-cancer-center) at the [University of Kentucky](http://www.uky.edu/). 
 I work with our collaborators to analyse a variety of -omics data, including transcriptomics and metabolomics using both previously established and newly developed methods.
 
 I have been analyzing -omics type data since 2004, and programming in R since 2010.

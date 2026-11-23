@@ -1,0 +1,56 @@
+---
+title: "Adding RStudio Addin Shortcuts to the Positron IDE"
+subtitle: |
+  How to have add-ins available via keyboard shortcuts.
+date: 2026-11-23
+categories: [random-code-snippets, R, positron]
+editor_options:
+  chunk_output_type: console
+---
+
+If a package provides an RStudio addin, it turns out you can add them to Positron as well, and assign them to a custom keymapping.
+
+For example, the {tflow} package has commands to run targets make of a specific target, etc.
+
+The key, is to modify the file `keybindings.json`, and make use of the "workbench.action.executeCode.console".
+
+Here I've posted some snippets from my own `keybindings.json` file, where I've enabled some from {tflow} and {targets} packages.
+
+```json
+{
+        "key": "Ctrl+t m",
+        "command": "workbench.action.executeCode.console",
+        "args": {
+            "langId": "r",
+            "code": "targets::tar_make() |> flighttools::ft_notify_success_error() |> flighttools::ft_beep_success_error()",
+            "focus": false
+        }
+    },
+    {
+        "key": "Ctrl+t t",
+        "command": "workbench.action.executeCode.console",
+        "args": {
+            "langId": "r",
+            "code": "tflow::rs_make_target_at_cursor() |> flighttools::ft_notify_success_error() |> flighttools::ft_beep_success_error()",
+            "focus": false
+        }
+    },
+    {
+        "key": "Ctrl+t r",
+        "command": "workbench.action.executeCode.console",
+        "args": {
+            "langId": "r",
+            "code": "targets::rstudio_addin_tar_read()",
+            "focus": false
+        }
+    },
+    {
+        "key": "Ctrl+t l",
+        "command": "workbench.action.executeCode.console",
+        "args": {
+            "langId": "r",
+            "code": "targets::rstudio_addin_tar_load()",
+            "focus": false
+        }
+    },
+```
