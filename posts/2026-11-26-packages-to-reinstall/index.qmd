@@ -1,0 +1,22 @@
+---
+title: "Packages To Reinstall"
+subtitle: |
+  Keeping a running list of packages I always install  
+date: 2026-11-26
+categories: [R, random-code-snippets]
+editor_options:
+  chunk_output_type: console
+---
+
+I frequently forget what packages I want to install in a new project, especially if it's something new that I haven't gotten in the habit of using regularly.
+So here, I'm going to keep track of packages I install, and why.
+
+- milesmcbain/tflow: helps greatly in setting up and managing targets workflows
+- milesmcbain/paint: turns data-frames 90 degrees, and color codes the output
+- lpembleton/corner: makes viewing data-frames and matrices much nicer in the console
+- bioconductor/SummarizedExperiment: if I'm working with -omics abundance data, I need this. Mainline it into my veins.
+- cran/targets & tarchetypes: targets pipelines. If I'm doing analyses, I need these to keep it sane.
+- rmflight/flighttools: helper functions, and notifications, oh my.
+- moseleybioinformaticslab/ICIKendallTau: doing correlations.
+- moseleybioinformaticslab/visualizationQualityControl: doing qc/qa stuff.
+- cran/visdat: missingness visualization, generally useful.
